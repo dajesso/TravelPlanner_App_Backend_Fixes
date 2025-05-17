@@ -3,7 +3,9 @@
 
 import { expressjwt } from "express-jwt"
 import User from './models/user.js'
-
+import 'dotenv/config';
+import db from './db.js'
+const secret = process.env.JWT_SECRET
 // auth middleware function auth takes in params of req, rest, next
 
 export function auth(req, res, next) {
