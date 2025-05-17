@@ -27,7 +27,7 @@ router.post('/login', async (req, res) => {
                     email: user.email,
                     exp: Math.floor(Date.now() / 1000) + (60 * 60) // 1 hour
                 }, secret)
-                res.send({ token, email: user.email })
+                res.send({ token, email: user.email, accountType: user.accountType})
             } else {
                 res.status(404).send({ error: 'Email or password incorrect' })
             }
@@ -43,6 +43,12 @@ router.post('/login', async (req, res) => {
 router.post('/register', auth, checkUserType, async (req, res) => {
     try {
         // Create and save new User instance
+        let user; 
+
+        // we check if the values are entered
+        if (!req.body.email || !req.body.password) {
+            return res.status(400).send({ error: 'Email and password are required' })
+        }
 
         // now we check user type then create the user
 
@@ -51,10 +57,10 @@ router.post('/register', auth, checkUserType, async (req, res) => {
         if (req.userType === 'admin') {
             // check if the user is an admin
             // then we create the user
-            const user = await User.create({
+            user = await User.create({
                 email: req.body.email,
                 password: await bcrypt.hash(req.body.password, 10),
-                accountType: 'user'
+                userType: 'user'
             })
         }else{
             res.status(403).send({ error: 'Unauthorized' })
@@ -64,7 +70,7 @@ router.post('/register', auth, checkUserType, async (req, res) => {
     
         // Send user to the client with 201 status
         // TODO: Create a JWT so the user is automatically logged in
-        res.status(201).send({ email: user.email })
+        res.status(201).send({ email: user.email, accountType: user.accountType })
     
     }catch (err) {
         res.status(400).send({ error: err.message })

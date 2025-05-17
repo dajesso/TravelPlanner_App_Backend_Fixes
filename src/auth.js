@@ -23,9 +23,9 @@ export function checkUserType(req, res, next) {
         User.findOne({ email: req.auth.email }).then(user => {
             if (user && user.accountType === 'admin') {
                 req.userType = 'admin'
-                res.status(200).send({ message: 'Authenticated Admin' })
+                //res.status(200).send({ message: 'Authenticated Admin' })
             } else {
-                res.status(200).send({ message: 'Authenticated User' })
+                //res.status(200).send({ message: 'Authenticated User' })
                 req.userType = 'user'
             }
             next()
