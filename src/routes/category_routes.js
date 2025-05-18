@@ -5,8 +5,9 @@ import Category from '../models/category.js';
 const router = Router();
 
 //get all category
-router.get('/categories', async(req, res)=> {
-    res.send(await Category.find());
+router.get('/categories', async(req, res) => {
+    const categories = await Category.find();
+    res.send(categories);
 });
 
 //Get one category
@@ -19,7 +20,6 @@ router.get('/categories/:id', async(req, res) => {
     //send the post back to the client
     if (category) {
         res.send(category);
-
     } else{
         res.status(404).send ({error:`Category with id ${category_id} not found`});
     }
@@ -39,16 +39,16 @@ router.post('/categories', async(req,res) => {
         // Create and save new category
         const category = await Category.create(bodyData);
         // Send post to the client with 201 status
-        res.status(201).send(category);
+        return res.status(201).send(category);
     }
     catch (err) {
         // TODO: Log to error file
-        res.status(400).send({ error: err.message });
+        return res.status(400).send({ error: err.message });
     }
 });
 
 // Update 
-async function update(req, res) {
+router.put('/categories/:id', async (req, res) => {
     try {
         // to make sure the name does not exist
         const exists = await Category.findOne({ name: req.body.name });
@@ -65,9 +65,8 @@ async function update(req, res) {
     } catch (err){
         res.status(400).send({ error: err.message });
     }
-};
+});
 
-router.put('/categories/:id', update);
 
 // Delete 
 router.delete('/categories/:id', async (req, res) => {
