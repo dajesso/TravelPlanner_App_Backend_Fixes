@@ -30,6 +30,7 @@ router.get('/categories/:id', async(req, res) => {
 router.post('/categories', async(req,res) => {
     try {
         // Get data from the request body abd check if the name is unique
+        const bodyData = req.body
         const exists = await Category.findOne({ name: req.body.name });
         // if the category name already exists
         if (exists) {
@@ -43,6 +44,29 @@ router.post('/categories', async(req,res) => {
     catch (err) {
         // TODO: Log to error file
         res.status(400).send({ error: err.message })
+    }
+})
+
+// Update 
+async function update(req, res) {
+    // 1. Fetch the post from the db
+    const category = await Category.findByIdAndUpdate(req.params.id, req.body, {returnDocument: 'after'})
+    if (category) {
+        res.send(category)
+    } else {
+        res.status(404).send({ error: `Category with id = '${req.params.id}' not found` })
+    }
+}
+
+router.put('/categories/:id', update)
+
+// Delete 
+router.delete('/categories/:id', async (req, res) => {
+    const category = await Category.findByIdAndDelete(req.params.id)
+    if (category) {
+        res.send({ message: `Category '${category.name}' has been deleted.` })
+    } else {
+        res.status(404).send({ error: `Category with id = '${req.params.id}' not found` })
     }
 })
 
