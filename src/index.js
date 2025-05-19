@@ -1,6 +1,9 @@
-import express from 'express';
+
+import express from 'express';;
 import mongoose from 'mongoose';
+import expense_routes from './routes/expense_routes.js';
 import category_routes from './routes/category_routes.js';
+
 
 
 const app = express();
@@ -8,6 +11,8 @@ const port = 3000;
 // insert middleware to insert json body
 app.use(express.json());
 // app.use inserts middleware into the request-reponse cycle
+
+app.use(expense_routes);
 app.use(category_routes);
 
 // start the given server on the given port
