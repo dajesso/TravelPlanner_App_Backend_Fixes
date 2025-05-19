@@ -12,4 +12,5 @@ const Trip = model('Trip', {
   EXPENSES DURING THIS 'trip'*/
 })
 
-module.exports = { Trip }
+// module.exports = { Trip }
+export default Trip
