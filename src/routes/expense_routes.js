@@ -4,7 +4,7 @@ const router = Router();
 
 //get all expense
 router.get('/expenses', async(req, res)=> {
-    res.send(await Expense.find());
+    res.send(await Expense.find().populate('category'));
 });
 //Get one expense
 router.get('/expenses/:id', async(req, res) => {
