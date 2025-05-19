@@ -3,15 +3,17 @@ import express from 'express';;
 import mongoose from 'mongoose';
 import expense_routes from './routes/expense_routes.js';
 import category_routes from './routes/category_routes.js';
+import trip_routes from './routes/trip_routes.js'
+
+const app = express()
+const port = 3000
+
+// middleware to parse JSON body from the client
+app.use(express.json())
 
 
-
-const app = express();
-const port = 3000;
-// insert middleware to insert json body
-app.use(express.json());
-// app.use inserts middleware into the request-reponse cycle
-
+// insertion of middleware through respective routes
+app.use(trip_routes)
 app.use(expense_routes);
 app.use(category_routes);
 
@@ -24,3 +26,4 @@ app.listen(port, async () => {
   console.log(mongoose.connection.readyState ==1 ? 'Mongoose connected' : 'Mongoose failed');
 
 });
+
