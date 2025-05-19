@@ -1,8 +1,10 @@
-import { model } from 'mongoose';
+import { model, Schema } from 'mongoose';
 
-const Category = model('Expense', {
+const expenseSchema = new Schema({
     amount: {type:  Number, required: true},
-    description: { type: String, required: true }
+    description: { type: String, required: true },
+    category: { type: Schema.Types.ObjectId, ref: 'Category', required: true },
 });
 
-export default Category;
+const Expense = model('Expense', expenseSchema);
+export default Expense;
