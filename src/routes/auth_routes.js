@@ -55,31 +55,11 @@ router.post('/register', auth, verifyToken, async (req, res) => {
         }
 
         // now we check user type then create the user
-
-        // we need to check for the token.
-    
-        if (req.userType === 'admin') {
-            // check if the user is an admin
-            // then we create the user
-            user = await User.create({
-                email: req.body.email,
-                password: await bcrypt.hash(req.body.password, 10),
-                userType: 'admin'
-            })
-
-        
-        if(req.userType === 'user') {
-            // check if the user is an admin
-            // then we create the user
-            user = await User.create({
+         user = await User.create({
                 email: req.body.email,
                 password: await bcrypt.hash(req.body.password, 10),
                 userType: 'user'
             })
-        }
-        }else{
-            res.status(403).send({ error: 'Unauthorized' })
-        }
             // Send user to the client with 201 status
 
     
