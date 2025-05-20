@@ -12,8 +12,11 @@ expenseSchema.statics.getTotalForTrip = async function(tripId) {
   const result = await this.aggregate([
     // Find all expenses where the "trip" field matches the tripID
     { $match: { trip: tripId } },
-    //Group all these matching expenses together (we use _id: null because we want to group all)
-    // and sum up their "amount" fields, storing it as "total"
+    /**
+     * Group all these matching expenses together 
+     * (we use _id: null because we want to group all)
+     * and sum up their "amount" fields, storing it as "total"
+     */
     { $group: { _id: null, total: { $sum: '$amount' } } }
   ]);
   // If no expenses are found, result[0] will be undefined, so return 0 instead
@@ -22,3 +25,4 @@ expenseSchema.statics.getTotalForTrip = async function(tripId) {
 
 const Expense = model('Expense', expenseSchema);
 export default Expense;
+// module.exports = { Expense }

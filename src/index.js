@@ -19,11 +19,11 @@ app.use(category_routes);
 
 // start the given server on the given port
 // the call back called when the server run
-app.listen(port, async () => {
-  console.log(`Example app listening on port ${port}`);
-  // Connect to MongoDB
-  await mongoose.connect('mongodb://127.0.0.1:27017/travelp');
-  console.log(mongoose.connection.readyState ==1 ? 'Mongoose connected' : 'Mongoose failed');
+// app.listen(port, async () => {
+//   console.log(`Example app listening on port ${port}`);
+//   // Connect to MongoDB
+//   await mongoose.connect('mongodb://127.0.0.1:27017/travelp');
+//   console.log(mongoose.connection.readyState ==1 ? 'Mongoose connected' : 'Mongoose failed');
 
-});
+// });
 
