@@ -1,11 +1,10 @@
 import { Router } from 'express' // destructures 'Router' from 'express'
 import Trip from '../models/trip.js'
-// import Expense from '../models/expense.js'
-// import Category from '../models/category.js'
+import Expense from '../models/expense.js'
+import Category from '../models/category.js'
 // import { auth, adminOnly } from '../auth.js'
 
 const router = Router()
-
 
 // Get all trips
 router.get('/trips', async (req, res) => {
@@ -73,5 +72,10 @@ router.delete('/trips/:id', async (req, res) => {
   }
 })
 
+export const total updateTripTotalExpense = async (tripId) => {
+  const total = await Expense.getTotalForTrip(tripId);
+  await Trip.findByIdAndUpdate(tripId, { totalExpense: total });
+}
 
-module.exports = { router }
+// module.exports = { router }
+export default router
