@@ -1,8 +1,12 @@
 // a test not confident it will work
 import { auth,  checkUserType } from '../auth.js'
 import { Router } from 'express' 
-import jwt from 'jsonwebtoken'
+
 const secret = process.env.JWT_SECRET
+import { verifyToken } from '../auth.js'
+
+import jwt from 'jsonwebtoken'
+const { verify } = jwt
 
 import bcrypt from 'bcrypt'
 
@@ -40,7 +44,7 @@ router.post('/login', async (req, res) => {
     }
 })
 
-router.post('/register', auth, checkUserType, async (req, res) => {
+router.post('/register', auth, verifyToken, async (req, res) => {
     try {
         // Create and save new User instance
         let user; 
@@ -60,8 +64,19 @@ router.post('/register', auth, checkUserType, async (req, res) => {
             user = await User.create({
                 email: req.body.email,
                 password: await bcrypt.hash(req.body.password, 10),
+                userType: 'admin'
+            })
+
+        
+        if(req.userType === 'user') {
+            // check if the user is an admin
+            // then we create the user
+            user = await User.create({
+                email: req.body.email,
+                password: await bcrypt.hash(req.body.password, 10),
                 userType: 'user'
             })
+        }
         }else{
             res.status(403).send({ error: 'Unauthorized' })
         }

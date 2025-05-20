@@ -5,6 +5,9 @@ import { expressjwt } from "express-jwt"
 import User from './models/user.js'
 import 'dotenv/config';
 import db from './db.js'
+import jwt from 'jsonwebtoken'
+const { verify } = jwt
+
 const secret = process.env.JWT_SECRET
 // auth middleware function auth takes in params of req, rest, next
 
@@ -12,6 +15,25 @@ export function auth(req, res, next) {
     return expressjwt({ secret: process.env.JWT_SECRET, algorithms: ["HS256"] })(req, res, next)
 }
 // checkUserType function checks if the user is an admin or a regular user
+
+// we verify the token
+
+export function verifyToken(req,res, next) { 
+    const token = req.headers['authorization']
+    
+    const stripBearer = token.startsWith('Bearer ') ? token.slice(7) : token;
+
+    if (!token) {
+        return res.status(401).send({ error: 'Unauthorized' })
+    }
+    jwt.verify(stripBearer, secret, (err, decoded) => {
+        if (err) {
+            return res.status(403).send({ error: 'Forbidden' })
+        }
+        req.auth = decoded
+        next()
+    })
+}
 
 
 export function checkUserType(req, res, next) {
@@ -35,4 +57,4 @@ export function checkUserType(req, res, next) {
     }
 }
 
-export default { auth, checkUserType }
+export default { auth, checkUserType, verifyToken}
