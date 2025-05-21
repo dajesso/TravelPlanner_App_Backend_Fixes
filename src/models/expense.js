@@ -3,8 +3,7 @@ import { model, Schema } from 'mongoose';
 const expenseSchema = new Schema({
     amount: {type:  Number, required: true},
     description: { type: String, required: true },
-    category: { type: Schema.Types.ObjectId, ref: 'Category', required: true },
-    trip: { type: Schema.Types.ObjectId, ref: 'Trip', required: true }
+    category: { type: Schema.Types.ObjectId, ref: 'Category', required: [true,'category field is required']}, // this is for handling validation error
 });
 
 expenseSchema.statics.getTotalForTrip = async function(tripId) {

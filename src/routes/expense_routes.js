@@ -1,6 +1,6 @@
 import { Router } from 'express' ;
 import Expense from '../models/expense.js';
-import { badRequest, notFound, serverError } from '../utils/responses.js';
+import { badRequest, formatValidationErrors, notFound, serverError } from '../utils/responses.js';
 
 const router = Router();
 
@@ -39,9 +39,14 @@ router.post('/expenses', async(req,res) => {
         res.status(201).send(expense);
     }
     catch (err) {
-        // TODO: Log to error file
+        // solving the problem: it will return "something went wrong" instead of path "Path" is required 
+        if (err.name === 'ValidationError') {
+            // Send the detailed validation errors object
+            return badRequest(res, formatValidationErrors(err.errors));
+        }
+         // For other errors, send generic error message
         badRequest(res, err.message);
-    }
+        }
 });
 
 // Update 
