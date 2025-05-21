@@ -1,4 +1,3 @@
-
 import express from 'express';;
 import mongoose from 'mongoose';
 import expense_routes from './routes/expense_routes.js';
@@ -13,7 +12,7 @@ app.use(express.json())
 
 
 // insertion of middleware through respective routes
-app.use(trip_routes)
+app.use(trip_routes);
 app.use(expense_routes);
 app.use(category_routes);
 
