@@ -1,6 +1,6 @@
 
 const express = require('express');
-const {Expense} = require('../models/expense.js');
+const Expense = require('../models/expense.js');
 const router = express.Router();
 
 
