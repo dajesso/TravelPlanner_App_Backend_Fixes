@@ -27,5 +27,5 @@ expenseSchema.statics.getTotalForTrip = async function(tripId) {
 };
 
 const Expense = model('Expense', expenseSchema);
-module.exports = { Expense };
+module.exports = Expense;
 
