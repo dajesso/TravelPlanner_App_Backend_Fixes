@@ -1,9 +1,13 @@
-import { model, Schema } from 'mongoose';
+
+const mongoose = require('mongoose');
+const { Schema, model } = mongoose;
+
 
 const expenseSchema = new Schema({
     amount: {type:  Number, required: true},
     description: { type: String, required: true },
     category: { type: Schema.Types.ObjectId, ref: 'Category', required: [true,'category field is required']}, // this is for handling validation error
+    trip: { type: Schema.Types.ObjectId, ref: 'Trip', required: [true,'trip field is required']}, // this is for handling validation error
 });
 
 expenseSchema.statics.getTotalForTrip = async function(tripId) {
@@ -24,4 +28,4 @@ expenseSchema.statics.getTotalForTrip = async function(tripId) {
 
 const Expense = model('Expense', expenseSchema);
 export default Expense;
-// module.exports = { Expense }
+

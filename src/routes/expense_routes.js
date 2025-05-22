@@ -1,8 +1,8 @@
-import { Router } from 'express' ;
-import Expense from '../models/expense.js';
-import { badRequest, formatValidationErrors, notFound, serverError } from '../utils/responses.js';
 
-const router = Router();
+const express = require('express');
+const Expense = require('../models/expense.js');
+const router = express.Router();
+
 
 //get all expense
 router.get('/expenses', async(req, res)=> {
@@ -80,5 +80,4 @@ router.delete('/expenses/:id', async (req, res) => {
     }
 });
 
-
-export default router
+module.exports = router;
