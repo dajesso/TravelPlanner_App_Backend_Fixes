@@ -1,8 +1,7 @@
-
-import express from 'express';;
-import mongoose from 'mongoose';
-import expense_routes from './routes/expense_routes.js';
-import category_routes from './routes/category_routes.js';
+const express = require('express');
+const mongoose = require('mongoose');
+const expense_routes = require('./routes/expense_routes.js');
+const category_routes = require('./routes/category_routes.js');
 
 
 
