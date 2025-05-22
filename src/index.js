@@ -4,6 +4,8 @@ const mongoose = require('mongoose');
 const expense_routes = require('./routes/expense_routes.js');
 const category_routes = require('./routes/category_routes.js');
 const trip_routes = require('./routes/trip_routes.js');
+const auth_routes = require('./routes/auth_routes.js');
+
 
 const app = express()
 const port = 3000
@@ -13,12 +15,13 @@ app.use(express.json())
 
 
 // insertion of middleware through respective routes
+app.use(auth_routes)
 app.use(trip_routes)
 app.use(expense_routes);
 app.use(category_routes);
 
 // start the given server on the given port
-// the call back called when the server run
+// the call back called when the server runv
 // app.listen(port, async () => {
 //   console.log(`Example app listening on port ${port}`);
 //   // Connect to MongoDB
@@ -32,4 +35,3 @@ app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).send({ error: 'Something went wrong on the server' });
 });
-

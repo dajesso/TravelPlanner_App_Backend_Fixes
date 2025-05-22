@@ -7,11 +7,13 @@ export async function connect() {
 }
 
 // Disconnect from MongoDB
+
 export async function close() {
     await mongoose.disconnect()
     console.log(mongoose.connection.readyState == 0 ? 'Mongoose disconnected!' : 'Mongoose failed to disconnect!')
 }
 
+// Best practice export
 module.exports = { connect, close }
 
 
