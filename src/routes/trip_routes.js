@@ -1,10 +1,13 @@
-import { Router } from 'express' // destructures 'Router' from 'express'
-import Trip from '../models/trip.js'
+// import { Router } from 'express' // destructures 'Router' from 'express'
+// import Trip from '../models/trip.js'
 // import Expense from '../models/expense.js'
 // import Category from '../models/category.js'
 // import { auth, adminOnly } from '../auth.js'
+const express = require('express');
+const Trip = require('../models/trip');
 
-const router = Router()
+// const router = Router()
+const router = express.Router();
 
 
 // Get all trips
@@ -74,5 +77,5 @@ router.delete('/trips/:id', async (req, res) => {
 })
 
 
-// module.exports = { router }
-export default router
+module.exports =  router;
+//export default router

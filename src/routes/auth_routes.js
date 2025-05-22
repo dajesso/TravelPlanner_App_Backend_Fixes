@@ -1,21 +1,30 @@
-// a test not confident it will work
-import { auth,  checkUserType } from '../auth.js'
-import { Router } from 'express' 
+// // a test not confident it will work
+// import { auth,  checkUserType } from '../auth.js'
+// import { Router } from 'express' 
 
-const secret = process.env.JWT_SECRET
-import { verifyToken } from '../auth.js'
+// const secret = process.env.JWT_SECRET
+// import { verifyToken } from '../auth.js'
 
-import jwt from 'jsonwebtoken'
-const { verify } = jwt
+// import jwt from 'jsonwebtoken'
+// const { verify } = jwt
 
-import bcrypt from 'bcrypt'
+// import bcrypt from 'bcrypt'
 
-const router = Router()
-
-
+// const router = Router()
 
 
-import User from '../models/user.js'
+
+
+// import User from '../models/user.js'
+const { Router } = require('express');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
+const { auth, verifyToken } = require('../auth.js');
+const User = require('../models/user.js');
+require('dotenv').config();
+
+const router = Router();
+const secret = process.env.JWT_SECRET;
 
 // Login
 router.post('/login', async (req, res) => {
@@ -44,7 +53,8 @@ router.post('/login', async (req, res) => {
     }
 })
 
-router.post('/register', auth, verifyToken, async (req, res) => {
+// router.post('/register', auth, verifyToken, async (req, res) => {
+router.post('/register', async (req, res) => {
     try {
         // Create and save new User instance
         let user; 
@@ -73,4 +83,5 @@ router.post('/register', auth, verifyToken, async (req, res) => {
 
 })
 
-export default router;
+// export default router;
+module.exports = router;
