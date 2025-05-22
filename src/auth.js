@@ -19,6 +19,10 @@ export function auth(req, res, next) {
 // we verify the token
 
 export function verifyToken(req,res, next) { 
+    
+
+    try{
+
     const token = req.headers['authorization']
     
     const stripBearer = token.startsWith('Bearer ') ? token.slice(7) : token;
@@ -33,10 +37,16 @@ export function verifyToken(req,res, next) {
         req.auth = decoded
         next()
     })
+    }catch (error) {        
+        console.error('Error verifying token:', error)
+        return res.status(500).send({ error: 'Internal Server Error' })
+    }
 }
 
 
 export function checkUserType(req, res, next) {
+
+    try{
     if (req.auth) {
 
         // finds by the email then returns if its a user or admin
@@ -54,6 +64,10 @@ export function checkUserType(req, res, next) {
         })
     } else {
         res.status(403).send({ error: 'Unauthorized' })
+    }
+    }catch(error) {
+        console.error('Error checking user type:', error)
+        return res.status(500).send({ error: 'Internal Server Error' })
     }
 }
 
