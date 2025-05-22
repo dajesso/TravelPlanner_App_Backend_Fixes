@@ -1,8 +1,12 @@
-import db from './db.js'
-import User from "./models/user.js"
-import bcrypt from 'bcrypt'
+// import db from './db.js'
+// import User from "./models/user.js"
+// import bcrypt from 'bcrypt'
+const db = require('./db.js');
+const User = require('./models/user.js');
+const bcrypt = require('bcrypt');
 
 // create the users for the database. we have two user types admin and user.
+
 
 const users = [
     {
