@@ -9,7 +9,8 @@ const Trip = model('Trip', {
   arrivalDate: { type: Date, required: true },
   departureDate: { type: Date, required: true },
   //totalExpense: { type: ObjectId, ref: 'Expense', required: true }
-  totalExpense: { type: Schema.Types.ObjectId, ref: 'Expense', required: true }
+  // totalExpense: { type: Schema.Types.ObjectId, ref: 'Expense', required: true }
+  totalExpense: { type: Number, default: 0 }
   /* THIS KEY SHOULD BE IMPORTED FROM THE ENTITY 'Expense' WHERE
   A KEY 'totalExpense' CAN BE DEFINED TO STORE THE SUM OF ALL THE
   EXPENSES DURING THIS 'trip'*/
