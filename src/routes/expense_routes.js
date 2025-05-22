@@ -1,21 +1,31 @@
 import { Router } from 'express' ;
 import Expense from '../models/expense.js';
+import { badRequest, formatValidationErrors, notFound, serverError } from '../utils/responses.js';
+
 const router = Router();
 
 //get all expense
 router.get('/expenses', async(req, res)=> {
-    res.send(await Expense.find().populate('category'));
+    try {
+        res.send(await Expense.find().populate('category'));
+    } catch(err) {
+        serverError(res, 'Failed to get expenses');
+    }
 });
 //Get one expense
 router.get('/expenses/:id', async(req, res) => {
-    // Get the id
-    const expense_id = req.params.id; // string
-    const expense = await Expense.findById(expense_id);
-    //send the post back to the client
-    if (expense) {
-        res.send(expense);
-    } else{
-        res.status(404).send ({error:`Expense with id ${expense_id} not found`});
+    try {
+         // Get the id
+        const expense_id = req.params.id; // string
+        const expense = await Expense.findById(expense_id);
+        //send the post back to the client
+        if (expense) {
+            res.send(expense);
+        } else{
+            notFound(res, `Expense with id ${req.params.id} not found`);
+        }
+    } catch (err) {
+        badRequest(res, 'Invalid expense ID format');
     }
 });
 // Create expense
@@ -29,34 +39,46 @@ router.post('/expenses', async(req,res) => {
         res.status(201).send(expense);
     }
     catch (err) {
-        // TODO: Log to error file
-        res.status(400).send({ error: err.message });
-    }
-})
+        // solving the problem: it will return "something went wrong" instead of path "Path" is required 
+        if (err.name === 'ValidationError') {
+            // Send the detailed validation errors object
+            return badRequest(res, formatValidationErrors(err.errors));
+        }
+         // For other errors, send generic error message
+        badRequest(res, err.message);
+        }
+});
 
 // Update 
 async function update(req, res) {
-    // 1. Fetch the post from the db
-    const expense = await Expense.findByIdAndUpdate(req.params.id, req.body, {returnDocument: 'after'});
-    if (expense) {
-        res.send(expense);
-    } else {
-        res.status(404).send({ error: `Expense with id = '${req.params.id}' not found` });
+    try {
+        // Fetch the post from the db
+        const expense = await Expense.findByIdAndUpdate(req.params.id, req.body, {returnDocument: 'after'});
+        if (expense) {
+            res.send(expense);
+        } else {
+            notFound(res, `Expense with id ${req.params.id} not found`);
+        }
+    } catch (err) {
+        badRequest(res, 'Invalid expense ID format');
     }
-}
+};
 
 router.put('/expenses/:id', update);
 
 // Delete 
 router.delete('/expenses/:id', async (req, res) => {
-    const expense = await Expense.findByIdAndDelete(req.params.id);
-    if (expense) {
-        res.send({ message: `Expense '${expense.name}' has been deleted.` });
-    } else {
-        res.status(404).send({ error: `Expense with id = '${req.params.id}' not found` });
+    try {
+        const expense = await Expense.findByIdAndDelete(req.params.id);
+        if (expense) {
+            res.send({ message: `Expense '${expense.name}' has been deleted.` });
+        } else {
+            notFound(res, `Expense with id ${req.params.id} not found`);
+        }
+    } catch (err) {
+        badRequest(res, 'Invalid expense ID format');
     }
-})
-
+});
 
 
 export default router
