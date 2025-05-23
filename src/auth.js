@@ -54,14 +54,17 @@ function auth(req, res, next) {
 function verifyToken(req, res, next) { 
     try {
         const token = req.headers['authorization'];
+        console.log('Authorization header:', token); //for debug
         if (!token) {
             return res.status(401).send({ error: 'Unauthorized' });
         }
 
         const stripBearer = token.startsWith('Bearer ') ? token.slice(7) : token;
+        console.log('Token after Bearer removed:', stripBearer); //for debug
 
         jwt.verify(stripBearer, secret, (err, decoded) => {
             if (err) {
+                console.log('JWT verify error:', err); // for debug
                 return res.status(403).send({ error: 'Forbidden' });
             }
             req.auth = decoded;

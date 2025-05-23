@@ -3,8 +3,11 @@ const express = require('express');
 const Expense = require('../models/expense.js');
 const router = express.Router();
 const Trip = require('../models/trip.js')
+const { verifyToken } = require('../auth.js');
 const { badRequest, notFound, serverError } = require('../utils/responses.js');
 
+// Protect all routes in this router
+router.use(verifyToken);
 
 //get all expense
 router.get('/expenses', async(req, res)=> {
