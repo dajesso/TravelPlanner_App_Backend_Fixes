@@ -67,6 +67,7 @@ function verifyToken(req, res, next) {
                 console.log('JWT verify error:', err); // for debug
                 return res.status(403).send({ error: 'Forbidden' });
             }
+            console.log('DECODED TOKEN:', decoded);// for debug
             req.auth = decoded;
             next();
         });

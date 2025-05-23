@@ -94,6 +94,11 @@ async function seed() {
     });
     const createdTrips = await Trip.create(trips); // execute the creation and save the returned documents
     
+
+    // Assign user to each category
+    categories.forEach(category => {
+    category.user = createdUsers[0]._id;
+    });
     // Create categories
     const createdCategories = await Category.create(categories);
     
