@@ -1,9 +1,12 @@
 // import db from './db.js'
 // import User from "./models/user.js"
 // import bcrypt from 'bcrypt'
+const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
+
 const db = require('./db.js');
 const User = require('./models/user.js');
-const bcrypt = require('bcrypt');
+
 
 // import { connect, close } from './db.js'
 // import db from './db.js'
@@ -14,22 +17,6 @@ const Expense = require('./models/expense.js');
 // import Category from './models/category.js'
 // import Expense from './models/expense.js'
 
-// User
-// create the users for the database. we have two user types admin and user.
-const users = [
-    {
-        email: 'jesso@jesso.me',
-        // we hash the password before we save it to the database
-        password: await bcrypt.hash("password", 10),
-        accountType: 'admin'
-    },
-    {
-        email: 'felicis@jesso.me',
-        // we hash the password before we save it to the database
-        password: await bcrypt.hash("felicis", 10),
-        accountType: 'user'
-    }
-];
 
 // Trip
 const trips = [
@@ -79,6 +66,19 @@ async function seed() {
     await Trip.deleteMany();
     await Category.deleteMany();
     await Expense.deleteMany();
+    const users = [
+      {
+        email: 'jesso@jesso.me',
+        password: await bcrypt.hash("password", 10),
+        accountType: 'admin'
+      },
+      {
+        email: 'felicis@jesso.me',
+        password: await bcrypt.hash("felicis", 10),
+        accountType: 'user'
+      }
+    ];
+
     
     // Create User
     // await User.create(users) //this execute the creation but do not store or reuse the created user documents afterward.

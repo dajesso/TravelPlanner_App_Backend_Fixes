@@ -12,7 +12,7 @@ const expense_routes = require('./routes/expense_routes.js');
 const category_routes = require('./routes/category_routes.js');
 const trip_routes = require('./routes/trip_routes.js');
 const auth_routes = require('./routes/auth_routes.js');
-const connect = require('./db.js')
+const {connect} = require('./db.js')
 
 
 const app = express ()
