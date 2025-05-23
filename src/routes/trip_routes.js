@@ -31,39 +31,21 @@ router.get('/trips/:id', async (req, res) => {
 })
 
 // Create a new trip
-router.post('/trips', (req, res) => {
-//   try {
-//     // get trip data from the request body
-     const bodyData = req.body
-     console.log(bodyData)
-
-     res.send('poasdfasd')
-//     // create and save the new Trip instance
-//     const trip = await Trip.create(bodyData)
-//     // send trip to the client with 201 status
-//     res.status(201).send(trip)
-//   }
-//   catch (err) {
-//     // TODO: log to error file
-//     res.status(400).send({ error: err.message })
-//   }
+router.post('/trips', async (req, res) => {
+  try {
+    // get trip data from the request body
+    const bodyData = req.body
+    // create and save the new Trip instance
+    const trip = await Trip.create(bodyData)
+    // send trip to the client with 201 status
+    res.status(201).send(trip)
+  }
+  catch (err) {
+    // TODO: log to error file
+    res.status(400).send({ error: err.message })
+  }
 })
 
-// // Create a new trip
-// router.post('/trips', async (req, res) => {
-//   try {
-//     // get trip data from the request body
-//     const bodyData = req.body
-//     // create and save the new Trip instance
-//     const trip = await Trip.create(bodyData)
-//     // send trip to the client with 201 status
-//     res.status(201).send(trip)
-//   }
-//   catch (err) {
-//     // TODO: log to error file
-//     res.status(400).send({ error: err.message })
-//   }
-// })
 
 // Update a trip
 async function update(req, res) {
@@ -93,10 +75,10 @@ router.delete('/trips/:id', async (req, res) => {
   }
 })
 
-export const total updateTripTotalExpense = async (tripId) => {
+export const updateTripTotalExpense = async (tripId) => {
   const total = await Expense.getTotalForTrip(tripId);
   await Trip.findByIdAndUpdate(tripId, { totalExpense: total });
 }
 
-// module.exports = { router }
+// // module.exports = { router }
 export default router
