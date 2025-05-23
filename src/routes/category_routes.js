@@ -2,8 +2,11 @@
 const express = require('express');
 const Category = require('../models/category');
 const router = express.Router();
+const { verifyToken } = require('../auth.js');
 const { badRequest, notFound, serverError } = require('../utils/responses.js');
 
+
+router.use(verifyToken);
 
 //get all category
 router.get('/categories', async(req, res) => {
