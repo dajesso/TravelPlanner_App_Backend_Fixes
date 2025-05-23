@@ -1,10 +1,22 @@
 // error handling for routes
+
+// 403 Forbidden, 401 Unauthorized, 404 Not Found, 400 Bad Request, 500 Internal Server Error
+
 export function notFound(res, message = 'Resource not found') {
   return res.status(404).send({ error: message });
 };
 
 export function badRequest(res, message = 'Bad request') {
   return res.status(400).send({ error: message });
+};
+
+export function unauthorized(res, message = 'Unauthorized') {
+  return res.status(401).send({ error: message });
+};
+
+
+export function forbidden(res, message = 'Forbidden') {
+  return res.status(403).send({ error: message });
 };
 
 

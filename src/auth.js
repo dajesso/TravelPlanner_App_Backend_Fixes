@@ -11,6 +11,7 @@
 const { expressjwt } = require('express-jwt');
 const User = require('./models/user.js');
 const jwt = require('jsonwebtoken');
+const { serverError, forbidden, unauthorized } = require('./utils/responses.js');
 require('dotenv').config();
 
 const secret = process.env.JWT_SECRET
@@ -56,7 +57,7 @@ function verifyToken(req, res, next) {
         const token = req.headers['authorization'];
         console.log('Authorization header:', token); //for debug
         if (!token) {
-            return res.status(401).send({ error: 'Unauthorized' });
+            unauthorized('Unauthorized');
         }
 
         const stripBearer = token.startsWith('Bearer ') ? token.slice(7) : token;
@@ -65,14 +66,14 @@ function verifyToken(req, res, next) {
         jwt.verify(stripBearer, secret, (err, decoded) => {
             if (err) {
                 console.log('JWT verify error:', err); // for debug
-                return res.status(403).send({ error: 'Forbidden' });
+                forbidden(res, 'Forbidden');
             }
             req.auth = decoded;
             next();
         });
     } catch (error) {
         console.error('Error verifying token:', error);
-        return res.status(500).send({ error: 'Internal Server Error' });
+        serverError(res,  'Internal Server Error' );
     }
 };
 
@@ -115,13 +116,15 @@ function checkUserType(req, res, next) {
                 next();
             });
         } else {
-            res.status(403).send({ error: 'Unauthorized' });
+            unauthorized('Unauthorized');
         }
     } catch (error) {
         console.error('Error checking user type:', error);
-        return res.status(500).send({ error: 'Internal Server Error' });
+         serverError(res,  'Internal Server Error' );
     }
 }
+
+
 
 
 // export default { auth, checkUserType, verifyToken}
