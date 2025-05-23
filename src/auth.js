@@ -1,128 +1,76 @@
-// this is the auth middle were 
-// will check if a user is of type admin or user
-
-// import { expressjwt } from "express-jwt"
-// import User from './models/user.js'
-// import 'dotenv/config';
-// import db from './db.js'
-// import jwt from 'jsonwebtoken'
-// const { verify } = jwt
-
-const { expressjwt } = require('express-jwt');
-const User = require('./models/user.js');
-const jwt = require('jsonwebtoken');
-require('dotenv').config();
+// a test not confident it will work
+import { auth,  checkUserType } from '../auth.js'
+import { Router } from 'express' 
 
 const secret = process.env.JWT_SECRET
-// auth middleware function auth takes in params of req, rest, next
+import { verifyToken } from '../auth.js'
 
-// export function auth(req, res, next) {
-//     return expressjwt({ secret: process.env.JWT_SECRET, algorithms: ["HS256"] })(req, res, next)
-// }
-function auth(req, res, next) {
-    return expressjwt({ secret, algorithms: ["HS256"] })(req, res, next);
-}
+import jwt from 'jsonwebtoken'
+const { verify } = jwt
 
-// checkUserType function checks if the user is an admin or a regular user
+import bcrypt from 'bcrypt'
 
-// we verify the token
+const router = Router()
 
-// export function verifyToken(req,res, next) { 
-    
 
-//     try{
 
-//     const token = req.headers['authorization']
-    
-//     const stripBearer = token.startsWith('Bearer ') ? token.slice(7) : token;
 
-//     if (!token) {
-//         return res.status(401).send({ error: 'Unauthorized' })
-//     }
-//     jwt.verify(stripBearer, secret, (err, decoded) => {
-//         if (err) {
-//             return res.status(403).send({ error: 'Forbidden' })
-//         }
-//         req.auth = decoded
-//         next()
-//     })
-//     }catch (error) {        
-//         console.error('Error verifying token:', error)
-//         return res.status(500).send({ error: 'Internal Server Error' })
-//     }
-// }
-function verifyToken(req, res, next) { 
+import User from '../models/user.js'
+
+// Login
+router.post('/login', async (req, res) => {
     try {
-        const token = req.headers['authorization'];
-        console.log('Authorization header:', token); //for debug
-        if (!token) {
-            return res.status(401).send({ error: 'Unauthorized' });
-        }
-
-        const stripBearer = token.startsWith('Bearer ') ? token.slice(7) : token;
-        console.log('Token after Bearer removed:', stripBearer); //for debug
-
-        jwt.verify(stripBearer, secret, (err, decoded) => {
-            if (err) {
-                console.log('JWT verify error:', err); // for debug
-                return res.status(403).send({ error: 'Forbidden' });
+        // Find the user with the provided email
+        const user = await User.findOne({ email: req.body.email })
+        if (user) {
+            // Validate the password
+            const match = await bcrypt.compare(req.body.password || '', user.password)
+            if (match) {
+                // Generate a JWT and send it to the client
+                const token = jwt.sign({
+                    email: user.email,
+                    exp: Math.floor(Date.now() / 1000) + (60 * 60) // 1 hour
+                }, secret)
+                res.send({ token, email: user.email, accountType: user.accountType})
+            } else {
+                res.status(404).send({ error: 'Email or password incorrect' })
             }
-            req.auth = decoded;
-            next();
-        });
-    } catch (error) {
-        console.error('Error verifying token:', error);
-        return res.status(500).send({ error: 'Internal Server Error' });
-    }
-};
-
-
-// export function checkUserType(req, res, next) {
-
-//     try{
-//     if (req.auth) {
-
-//         // finds by the email then returns if its a user or admin
-//         // we use the findOne method to find the user by email
-
-//         User.findOne({ email: req.auth.email }).then(user => {
-//             if (user && user.accountType === 'admin') {
-//                 req.userType = 'admin'
-//                 //res.status(200).send({ message: 'Authenticated Admin' })
-//             } else {
-//                 //res.status(200).send({ message: 'Authenticated User' })
-//                 req.userType = 'user'
-//             }
-//             next()
-//         })
-//     } else {
-//         res.status(403).send({ error: 'Unauthorized' })
-//     }
-//     }catch(error) {
-//         console.error('Error checking user type:', error)
-//         return res.status(500).send({ error: 'Internal Server Error' })
-//     }
-// }
-function checkUserType(req, res, next) {
-    try {
-        if (req.auth) {
-            User.findOne({ email: req.auth.email }).then(user => {
-                if (user && user.accountType === 'admin') {
-                    req.userType = 'admin';
-                } else {
-                    req.userType = 'user';
-                }
-                next();
-            });
         } else {
-            res.status(403).send({ error: 'Unauthorized' });
+            res.status(404).send({ error: 'Email or password incorrect' })
         }
-    } catch (error) {
-        console.error('Error checking user type:', error);
-        return res.status(500).send({ error: 'Internal Server Error' });
     }
-}
+    catch (err) {
+        res.status(400).send({ error: err.message })
+    }
+})
 
+router.post('/register', auth, verifyToken, async (req, res) => {
+    try {
+        // Create and save new User instance
+        let user; 
 
-// export default { auth, checkUserType, verifyToken}
-module.exports = { auth, verifyToken, checkUserType };
+        // we check if the values are entered
+        if (!req.body.email || !req.body.password) {
+            return res.status(400).send({ error: 'Email and password are required' })
+        }
+
+        // now we check user type then create the user
+         user = await User.create({
+                email: req.body.email,
+                password: await bcrypt.hash(req.body.password, 10),
+                userType: 'user'
+            })
+            // Send user to the client with 201 status
+
+    
+        // Send user to the client with 201 status
+        // TODO: Create a JWT so the user is automatically logged in
+        res.status(201).send({ email: user.email, accountType: user.accountType })
+    
+    }catch (err) {
+        res.status(400).send({ error: err.message })
+    }
+
+})
+
+export default router;

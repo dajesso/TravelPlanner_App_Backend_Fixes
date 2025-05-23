@@ -8,23 +8,7 @@
 // import jwt from 'jsonwebtoken'
 // const { verify } = jwt
 
-// import bcrypt from 'bcrypt'
-
-// const router = Router()
-
-
-
-
-// import User from '../models/user.js'
-const { Router } = require('express');
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
-const { auth, verifyToken } = require('../auth.js');
-const User = require('../models/user.js');
-require('dotenv').config();
-
-const router = Router();
-const secret = process.env.JWT_SECRET;
+import { badRequest, goodRequest, notFound} from '../utils/responses.js'
 
 // Login
 router.post('/login', async (req, res) => {
@@ -42,26 +26,26 @@ router.post('/login', async (req, res) => {
                 }, secret)
                 res.send({ token, email: user.email, accountType: user.accountType})
             } else {
-                res.status(404).send({ error: 'Email or password incorrect' })
+                notFound({ message: 'Email or password incorrect' })
             }
         } else {
-            res.status(404).send({ error: 'Email or password incorrect' })
+            notFound({ message: 'Email or password incorrect' })
         }
     }
     catch (err) {
-        res.status(400).send({ error: err.message })
+        badRequest({ message: err.message })
     }
 })
 
-// router.post('/register', auth, verifyToken, async (req, res) => {
-router.post('/register', async (req, res) => {
+router.post('/register', auth, verifyToken, async (req, res) => {
     try {
         // Create and save new User instance
         let user; 
 
         // we check if the values are entered
         if (!req.body.email || !req.body.password) {
-            return res.status(400).send({ error: 'Email and password are required' })
+            badRequest(res, message = 'Email and password are required')
+            //return res.status(400).send({ error: 'Email and password are required' })
         }
 
         // now we check user type then create the user
@@ -75,13 +59,21 @@ router.post('/register', async (req, res) => {
     
         // Send user to the client with 201 status
         // TODO: Create a JWT so the user is automatically logged in
-        res.status(201).send({ email: user.email, accountType: user.accountType })
+        
+
+
+        // res.status(201).send({ email: user.email, accountType: user.accountType })
     
+        // lets create a 201 status response
+        //goodRequest(email: user.email, accountType: user.accountType, message = 'User created successfully')
+        // lets come back to this one
+        goodRequest(res, email = user.email, accountType = user.accountType, message = 'User created successfully')
+
+
     }catch (err) {
-        res.status(400).send({ error: err.message })
+        badRequest({ message: err.message })
     }
 
 })
 
-// export default router;
-module.exports = router;
+export default router;
