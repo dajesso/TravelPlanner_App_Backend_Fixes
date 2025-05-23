@@ -37,6 +37,7 @@ router.post('/login', async (req, res) => {
             if (match) {
                 // Generate a JWT and send it to the client
                 const token = jwt.sign({
+                     _id: user._id,
                     email: user.email,
                     exp: Math.floor(Date.now() / 1000) + (60 * 60) // 1 hour
                 }, secret)

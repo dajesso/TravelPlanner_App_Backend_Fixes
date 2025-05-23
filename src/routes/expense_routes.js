@@ -3,7 +3,7 @@ const express = require('express');
 const Expense = require('../models/expense.js');
 const router = express.Router();
 const Trip = require('../models/trip.js')
-const { verifyToken } = require('../auth.js');
+const { verifyToken } = require('../auth.js'); 
 const { badRequest, notFound, serverError } = require('../utils/responses.js');
 
 // Protect all routes in this router
@@ -12,7 +12,15 @@ router.use(verifyToken);
 //get all expense
 router.get('/expenses', async(req, res)=> {
     try {
-        res.send(await Expense.find().populate('category'));
+        // Get trip ID from query param
+        const tripId = req.query.trip; 
+        if (!tripId) {
+            return badRequest(res, 'Trip ID is required to fetch expenses');
+        }
+        // Find all expenses that belong to the specified trip
+        const expenses = await Expense.find({ trip: tripId }).populate('category');
+        res.send(expenses);
+        
     } catch(err) {
         serverError(res, 'Failed to get expenses');
     }
