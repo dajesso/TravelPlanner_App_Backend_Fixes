@@ -1,4 +1,5 @@
-import mongoose from 'mongoose'
+// import mongoose from 'mongoose'
+const mongoose = require('mongoose');
 
 // Connect to MongoDB
 export async function connect() {
@@ -7,11 +8,14 @@ console.log(mongoose.connection.readyState == 1 ? 'Mongoose connected' : 'Mongoo
 }
 
 // Disconnect from MongoDB
+
 export async function close() {
   await mongoose.disconnect()
   console.log(mongoose.connection.readyState == 0 ? 'Mongoose disconnected!' : 'Mongoose failed to disconnect!')
 }
 
-export default { connect, close }
+// Best practice export
+module.exports = { connect, close }
+
 
 
