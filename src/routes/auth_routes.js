@@ -26,8 +26,8 @@ require('dotenv').config();
 const router = Router();
 const secret = process.env.JWT_SECRET;
 
-import { badRequest, goodRequest, notFound} from '../utils/responses.js'
-
+//import { badRequest, goodRequest, notFound} from '../utils/responses.js'
+const {badRequest, goodRequest, notFound} = require('../utils/responses.js')
 // Login
 router.post('/login', async (req, res) => {
     try {
@@ -44,14 +44,16 @@ router.post('/login', async (req, res) => {
                 }, secret)
                 res.send({ token, email: user.email, accountType: user.accountType})
             } else {
-                notFound({ message: 'Email or password incorrect' })
+
+                notFound(res, 'Email or password incorrect')
             }
         } else {
-            notFound({ message: 'Email or password incorrect' })
+            notFound(res, 'Email or password incorrect')
+
         }
     }
     catch (err) {
-        badRequest({ message: err.message })
+         badRequest(res, err.message)
     }
 })
 
@@ -62,7 +64,7 @@ router.post('/register', auth, verifyToken, async (req, res) => {
 
         // we check if the values are entered
         if (!req.body.email || !req.body.password) {
-            badRequest(res, message = 'Email and password are required')
+            badRequest(res,'Email and password are required')
             //return res.status(400).send({ error: 'Email and password are required' })
         }
 
@@ -85,13 +87,16 @@ router.post('/register', auth, verifyToken, async (req, res) => {
         // lets create a 201 status response
         //goodRequest(email: user.email, accountType: user.accountType, message = 'User created successfully')
         // lets come back to this one
-        goodRequest(res, email = user.email, accountType = user.accountType, message = 'User created successfully')
+               
+        goodRequest(res, user.email, user.accountType, 'User created successfully')
 
 
     }catch (err) {
-        badRequest({ message: err.message })
+    
+        badRequest(res, err.message)
+
     }
 
 })
 
-export default router;
+module.exports = router;
