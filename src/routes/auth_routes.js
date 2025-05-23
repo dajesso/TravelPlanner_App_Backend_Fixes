@@ -93,6 +93,10 @@ router.post('/register', auth, verifyToken, async (req, res) => {
 
     }catch (err) {
     
+        // trying to fix the error message that doesn't breaks the app.
+
+        
+
         badRequest(res, err.message)
 
     }
