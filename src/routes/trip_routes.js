@@ -1,11 +1,17 @@
-import { Router } from 'express' // destructures 'Router' from 'express'
-import Trip from '../models/trip.js'
+// import { Router } from 'express' // destructures 'Router' from 'express'
+// import Trip from '../models/trip.js'
 // import Expense from '../models/expense.js'
 // import Category from '../models/category.js'
 // import { auth, adminOnly } from '../auth.js'
+const express = require('express');
+const Trip = require('../models/trip');
+const Expense = require('../models/expense'); 
 
-const router = Router()
+// const router = Router()
+const router = express.Router();
 
+
+// Trip Routes
 
 // Get all trips
 router.get('/trips', async (req, res) => {
@@ -14,7 +20,7 @@ router.get('/trips', async (req, res) => {
 
 // Get one trip
 // relative HTTP route to retrieve the trip
-router.get('trips/:id', async (req, res) => {
+router.get('/trips/:id', async (req, res) => {
   // get the ID from the trip
   const tripId = req.params.id;
   // get the trip with the given ID
@@ -27,7 +33,6 @@ router.get('trips/:id', async (req, res) => {
     res.status(404).send({ error: `Trip with id ${tripId} not found`})
   }
 })
-
 
 // Create a new trip
 router.post('/trips', async (req, res) => {
@@ -44,6 +49,7 @@ router.post('/trips', async (req, res) => {
     res.status(400).send({ error: err.message })
   }
 })
+
 
 // Update a trip
 async function update(req, res) {
@@ -74,5 +80,17 @@ router.delete('/trips/:id', async (req, res) => {
 })
 
 
-// module.exports = { router }
-export default router
+// export const total updateTripTotalExpense = async (tripId) => {
+//   const total = await Expense.getTotalForTrip(tripId);
+//   await Trip.findByIdAndUpdate(tripId, { totalExpense: total });
+// }
+
+const updateTripTotalExpense = async (tripId) => {
+
+  const total = await Expense.getTotalForTrip(tripId);
+  await Trip.findByIdAndUpdate(tripId, { totalExpense: total });
+};
+
+module.exports =  router;
+// // module.exports = { router }
+// export default router

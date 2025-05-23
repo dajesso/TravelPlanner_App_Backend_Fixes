@@ -2,12 +2,17 @@
 const express = require('express');
 const Category = require('../models/category');
 const router = express.Router();
+const { verifyToken } = require('../auth.js');
+const { badRequest, notFound, serverError } = require('../utils/responses.js');
 
+
+router.use(verifyToken);
 
 //get all category
 router.get('/categories', async(req, res) => {
     try {
-        const categories = await Category.find();
+        const userId = req.auth._id;
+        const categories = await Category.find({ user: userId });
         res.send(categories);
     } catch {
         serverError(res,'Failed to get categories');
@@ -36,16 +41,28 @@ router.get('/categories/:id', async(req, res) => {
 // Create category
 router.post('/categories', async(req,res) => {
     try {
+        const userId = req.auth._id; // Get the user ID from the JWT token
+
         // Get data from the request body abd check if the name is unique
-        const bodyData = req.body;
-        const exists = await Category.findOne({ name: req.body.name });
+        // const bodyData = req.body;
+        // const exists = await Category.findOne({ name: req.body.name });
+
+        // frontend submit a name, and get back a valid category — either newly created or already existing.
+        const name = req.body.name?.trim(); // trim: string method that removes whitespace from both the beginning and end of a string.
+
+
+        if (!name) {
+            return badRequest(res, 'Category name is required');
+        }
+
+        const existing = await Category.findOne({ name, user: userId});
+
         // if the category name already exists
-        if (exists) {
-            notFound(res, 'Category name already exists');
+        if (existing) {
+            return res.status(200).send(existing);
         }
         // Create and save new category
-        const category = await Category.create(bodyData);
-        // Send post to the client with 201 status
+        const category = await Category.create({ name, user: userId });
         return res.status(201).send(category);
     }
     catch (err) {
