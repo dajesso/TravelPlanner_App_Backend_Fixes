@@ -5,7 +5,7 @@
 // import { auth, adminOnly } from '../auth.js'
 const express = require('express');
 const Trip = require('../models/trip');
-
+const Expense = require('../models/expense'); 
 
 // const router = Router()
 const router = express.Router();
@@ -97,10 +97,15 @@ router.delete('/trips/:id', async (req, res) => {
   }
 })
 
-export const total updateTripTotalExpense = async (tripId) => {
+// export const total updateTripTotalExpense = async (tripId) => {
+//   const total = await Expense.getTotalForTrip(tripId);
+//   await Trip.findByIdAndUpdate(tripId, { totalExpense: total });
+// }
+
+const updateTripTotalExpense = async (tripId) => {
   const total = await Expense.getTotalForTrip(tripId);
   await Trip.findByIdAndUpdate(tripId, { totalExpense: total });
-}
+};
 
 // module.exports = { router }
 module.exports =  router;
