@@ -1,30 +1,26 @@
-// import { Router } from 'express' // destructures 'Router' from 'express'
-// import Trip from '../models/trip.js'
-// import Expense from '../models/expense.js'
-// import Category from '../models/category.js'
-// import { auth, adminOnly } from '../auth.js'
 const express = require('express');
 const Trip = require('../models/trip');
 const Expense = require('../models/expense'); 
 
-// const router = Router()
 const router = express.Router();
-
 
 // Trip Routes
 
 // Get all trips
+//TODO: auth
 router.get('/trips', async (req, res) => {
   res.send(await Trip.find());
 })
 
 // Get one trip
+//TODO: auth
+
 // relative HTTP route to retrieve the trip
 router.get('/trips/:id', async (req, res) => {
   // get the ID from the trip
   const tripId = req.params.id;
   // get the trip with the given ID
-  const trip = await Trip.findOne({ _id: tripId }); // HERE THIS PART WAS COMPLEMENTED BY .populate('category') FOR THE nodeintro example.
+  const trip = await Trip.findOne({ _id: tripId }); // Angie fixed it (24.05.25)--- HERE THIS PART WAS COMPLEMENTED BY .populate('category') FOR THE nodeintro example.
   // send the trip back to the client
   if (trip) {
     res.send(trip)
@@ -35,6 +31,8 @@ router.get('/trips/:id', async (req, res) => {
 })
 
 // Create a new trip
+//TODO: auth
+
 router.post('/trips', async (req, res) => {
   try {
     // get trip data from the request body
@@ -52,6 +50,8 @@ router.post('/trips', async (req, res) => {
 
 
 // Update a trip
+//TODO: auth
+
 async function update(req, res) {
   // retrieve the trip from the database
   const trip = await Trip.findByIdAndUpdate(req.params.id, req.body, { returnDocument: 'after' })
@@ -68,6 +68,8 @@ router.put('/trips/:id', update)
 router.patch('/trips/:id', update)
 
 // Delete a trip
+//TODO: auth
+
 router.delete('/trips/:id', async (req, res) => {
   const trip = await Trip.findByIdAndDelete(req.params.id)
   if (trip) {
@@ -80,17 +82,11 @@ router.delete('/trips/:id', async (req, res) => {
 })
 
 
-// export const total updateTripTotalExpense = async (tripId) => {
-//   const total = await Expense.getTotalForTrip(tripId);
-//   await Trip.findByIdAndUpdate(tripId, { totalExpense: total });
-// }
-
 const updateTripTotalExpense = async (tripId) => {
 
   const total = await Expense.getTotalForTrip(tripId);
   await Trip.findByIdAndUpdate(tripId, { totalExpense: total });
 };
 
+// imports the whole module
 module.exports =  router;
-// // module.exports = { router }
-// export default router
