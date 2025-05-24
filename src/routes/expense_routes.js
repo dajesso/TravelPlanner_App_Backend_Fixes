@@ -9,7 +9,7 @@ const { badRequest, notFound, serverError } = require('../utils/responses.js');
 // Protect all routes in this router
 router.use(verifyToken);
 
-//get all expense
+// get all expense
 router.get('/expenses', async(req, res)=> {
     try {
         // Get trip ID from query param
@@ -25,6 +25,7 @@ router.get('/expenses', async(req, res)=> {
         serverError(res, 'Failed to get expenses');
     }
 });
+
 //Get one expense
 router.get('/expenses/:id', async(req, res) => {
     try {
@@ -41,10 +42,11 @@ router.get('/expenses/:id', async(req, res) => {
         badRequest(res, 'Invalid expense ID format');
     }
 });
+
 // Create expense
 router.post('/expenses', async(req,res) => {
     try {
-        //Create the expense with the trip ID coming from request body or session
+        // Create the expense with the trip ID coming from request body or session
         const newExpense = await Expense.create({
         amount: req.body.amount,
         description: req.body.description,
@@ -52,13 +54,13 @@ router.post('/expenses', async(req,res) => {
         trip: req.body.trip  // make sure trip ID is provided here
         });
 
-        // 2. Calculate total expense for this trip using your static method
+        // Calculate total expense for this trip using your static method
         const total = await Expense.getTotalForTrip(newExpense.trip);
 
-        // 3. Update the trip document's totalExpense field
+        // Update the trip document's totalExpense field
         await Trip.findByIdAndUpdate(newExpense.trip, { totalExpense: total });
 
-        // 4. Respond with success and new expense
+        // Respond with success and new expense
         res.status(201).send(newExpense);
     }
     catch (err) {
@@ -93,6 +95,7 @@ async function update(req, res) {
 
 router.put('/expenses/:id', update);
 
+
 // Delete 
 router.delete('/expenses/:id', async (req, res) => {
     try {
@@ -108,5 +111,6 @@ router.delete('/expenses/:id', async (req, res) => {
         badRequest(res, 'Invalid expense ID format');
     }
 });
+
 
 module.exports = router;
