@@ -64,12 +64,13 @@ router.post('/expenses', async(req,res) => {
     catch (err) {
         // solving the problem: it will return "something went wrong" instead of path "Path" is required 
         if (err.name === 'ValidationError') {
-            // Send the detailed validation errors object
-            return badRequest(res, formatValidationErrors(err.errors));
+            const errors = Object.values(err.errors).map(e => e.message);
+            return res.status(400).json({ error: errors });
         }
-         // For other errors, send generic error message
-        badRequest(res, err.message);
-        }
+
+        console.error(err);
+        return res.status(500).json({ error: 'Something went wrong on the server' });
+}
 });
 
 // Update 
