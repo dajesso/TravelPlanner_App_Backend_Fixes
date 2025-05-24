@@ -33,4 +33,4 @@ Description:
 This library allows us to generate, sign, and verify JWT (JSON Web Tokens).
 
 Why we use it:
-To handle user authentication and secure protected routes using token-based access.
+To handle user authentication and secure protected routes using token-based access.# TravelPlanner_App_Backend

@@ -4,9 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "jest",
     "dev": "node --watch src/index.js",
-    "seed": "node src/seed.js"
+    "seed": "node src/seed.js",
+    "trip_testing": "jest --testPathPattern=__tests__/trip_testing.test.js"
   },
   "repository": {
     "type": "git",
