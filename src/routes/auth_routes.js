@@ -1,21 +1,4 @@
-// // a test not confident it will work
-// import { auth,  checkUserType } from '../auth.js'
-// import { Router } from 'express' 
 
-// const secret = process.env.JWT_SECRET
-// import { verifyToken } from '../auth.js'
-
-// import jwt from 'jsonwebtoken'
-// const { verify } = jwt
-
-// import bcrypt from 'bcrypt'
-
-// const router = Router()
-
-
-
-
-// import User from '../models/user.js'
 const { Router } = require('express');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
@@ -27,31 +10,36 @@ const router = Router();
 const secret = process.env.JWT_SECRET;
 
 // Login
+/** TODO: handle error when trying to register an existing email
+ * Trial produced this: 
+ * "error": "E11000 duplicate key error collection: travelp.users index: email_1 dup key: { email: \"user.test@gmail.com\" }"
+ * Handle with a meaningful response
+*/
 router.post('/login', async (req, res) => {
-    try {
-        // Find the user with the provided email
-        const user = await User.findOne({ email: req.body.email })
-        if (user) {
-            // Validate the password
-            const match = await bcrypt.compare(req.body.password || '', user.password)
-            if (match) {
-                // Generate a JWT and send it to the client
-                const token = jwt.sign({
-                     _id: user._id,
-                    email: user.email,
-                    exp: Math.floor(Date.now() / 1000) + (60 * 60) // 1 hour
-                }, secret)
-                res.send({ token, email: user.email, accountType: user.accountType})
-            } else {
-                res.status(404).send({ error: 'Email or password incorrect' })
-            }
-        } else {
-            res.status(404).send({ error: 'Email or password incorrect' })
-        }
+  try {
+    // Find the user with the provided email
+    const user = await User.findOne({ email: req.body.email })
+    if (user) {
+      // Validate the password
+      const match = await bcrypt.compare(req.body.password || '', user.password)
+      if (match) {
+        // Generate a JWT and send it to the client
+        const token = jwt.sign({
+          _id: user._id,
+          email: user.email,
+          exp: Math.floor(Date.now() / 1000) + (60 * 60) // 1 hour
+        }, secret)
+        res.send({ token, email: user.email, accountType: user.accountType})
+      } else {
+        res.status(404).send({ error: 'Email or password incorrect' })
+      }
+    } else {
+        res.status(404).send({ error: 'Email or password incorrect' })
+      }
     }
-    catch (err) {
+  catch (err) {
         res.status(400).send({ error: err.message })
-    }
+  }
 })
 
 // router.post('/register', auth, verifyToken, async (req, res) => {

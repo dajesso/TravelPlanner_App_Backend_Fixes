@@ -1,22 +1,11 @@
-// import db from './db.js'
-// import User from "./models/user.js"
-// import bcrypt from 'bcrypt'
+
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
-
 const db = require('./db.js');
 const User = require('./models/user.js');
-
-
-// import { connect, close } from './db.js'
-// import db from './db.js'
-// import Trip from './models/trip.js'
 const Trip = require('./models/trip.js');
 const Category = require('./models/category.js');
 const Expense = require('./models/expense.js');
-// import Category from './models/category.js'
-// import Expense from './models/expense.js'
-
 
 // Trip
 const trips = [
@@ -24,19 +13,16 @@ const trips = [
     location: 'New Caledonia',
     arrivalDate: '2025-04-01',
     departureDate: '2025-04-07'
-//     totalExpense: 2000
   },
   {
     location: 'Fiji',
     arrivalDate: '2025-04-08',
     departureDate: '2025-04-15'
-//     totalExpense: 1000
   },
   {
     location: 'Bali, Indonesia',
     arrivalDate: '2025-06-16',
     departureDate: '2025-06-20'
-//     totalExpense: 1500
   }
 ];
 
@@ -57,11 +43,11 @@ const expenses = [
   }
 ];
 
-// Seeding function
+// Seeding function, stores intial information into the DB to run tests
 async function seed() {
   try{
     await db.connect();
-    // Clear Existing Data
+    // Delete any existing data
     await User.deleteMany();
     await Trip.deleteMany();
     await Category.deleteMany();
@@ -79,17 +65,16 @@ async function seed() {
       }
     ];
 
-    
+
     // Create User
-    // await User.create(users) //this execute the creation but do not store or reuse the created user documents afterward.
-    const createdUsers = await User.create(users); // execute the creation and save the returned documents
-    //(with _ids and other Mongo-generated fields) to createdUsers for later use.
-    //we store it because we want to: link trips to a user
+    /** Creates and saves the returned documents with '_id', and other Mongo-generated fields, to 'createUsers' for later use. We store it to link 'trips' to the specific 'user'. 
+    */
+    const createdUsers = await User.create(users);
     
     //associate the trips with a user and initialize their total expenses.
     // this is a demo data which assign trips to the first user
     trips.forEach(trip => {
-      trip.user = createdUsers[0]._id;
+      trip.userId = createdUsers[0]._id;
       trip.totalExpense = 0; // Will be updated later
     });
     const createdTrips = await Trip.create(trips); // execute the creation and save the returned documents
@@ -129,38 +114,12 @@ async function seed() {
     console.log('Database seeded successfully');
     
     
-  } catch{
+  } catch (err){
     console.error('Seeding error:', err);
   } finally {
     db.close();
   }
   
 };
-
-// db.connect()
-// Delete all existing posts
-// await User.deleteMany()
-// Creates and saves to MongoDB a new Post for each document in posts array
-// Before we do the next statement, we need to assign a category to each post,
-// otherwise it will fail with a validation error, since category is required.
-// await User.create(users)
-// console.log('Users created')
-
-
-// db.connect()
-
-// Delete all existing trips
-// await Trip.deleteMany()
-// await Trip.create(trips)
-// console.log('Database seeded')
-
-// Trip = model('Trip', {
-//     // COULD IT BE LET EMPTY OR IT SHOULD HAVE A VALUE
-// })
-
-
-// We still have a db connection open, so the script won't end
-// So we need to close the connection once we're done with it
-// db.close()
 
 seed();

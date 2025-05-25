@@ -9,7 +9,7 @@ const { badRequest, notFound, serverError } = require('../utils/responses.js');
 // Protect all routes in this router
 router.use(verifyToken);
 
-// get all expense
+// get all expenses
 router.get('/expenses', async(req, res)=> {
     try {
         // Get trip ID from query param
