@@ -1,7 +1,8 @@
 const express = require('express');
 const Trip = require('../models/trip');
 const Expense = require('../models/expense'); 
-// const User = require('../models/user.js')
+const moment = require('moment');
+const { validateTripUpdate, validateNewTrip, parseDate } = require('../utils/validateTrip.js')
 const router = express.Router();
 const { verifyToken } = require('../auth.js'); 
 const { badRequest, notFound, serverError } = require('../utils/responses.js');
@@ -52,37 +53,41 @@ router.get('/trips/:id', async (req, res) => {
 // Create a new trip
 router.post('/trips', async (req, res) => {
   try {
-      // Create a new trip linked to the user by userId
-      const trip = await Trip.create({
-        location: req.body.location,
-        arrivalDate: req.body.arrivalDate,
-        departureDate: req.body.departureDate,
-        userId: req.auth._id // This field links the user to the trip
-      })
-    res.status(201).send(trip)
+    const validatedData = validateNewTrip(req.body);
+
+    const trip = await Trip.create({
+      ...validatedData,
+      userId: req.auth._id,
+    });
+
+    res.status(201).send(trip);
+  } catch (err) {
+    res.status(400).send({ error: err.message });
   }
-  catch (err) {
-    // TODO: log to error file
-    res.status(400).send({ error: err.message })
-  }
-})
+});
 
 
 // Update a trip
-async function update(req, res) {
-  // retrieve the trip from the database
-  const trip = await Trip.findByIdAndUpdate(req.params.id, req.body, { returnDocument: 'after' })
-  if (trip) {
-    // send the trip the client
-    res.send(trip)
-    // return an meaningful message to the client in case of error
-  } else {
-    res.status(404).send({ error: `Trip with id = '${req.params.id}' not found` })
-  }
-}
+router.patch('/trips/:id', async (req, res) => {
+  try {
+    const existingTrip = await Trip.findById(req.params.id);
+    if (!existingTrip) {
+      return res.status(404).send({ error: 'Trip not found' });
+    }
 
-router.put('/trips/:id', update)
-router.patch('/trips/:id', update)
+    const updateFields = validateTripUpdate(req.body, existingTrip);
+
+    const updatedTrip = await Trip.findByIdAndUpdate(req.params.id, updateFields, {
+      returnDocument: 'after',
+    });
+
+    res.send(updatedTrip);
+  } catch (err) {
+    res.status(400).send({ error: err.message });
+  }
+});
+
+
 
 
 // Delete a trip
