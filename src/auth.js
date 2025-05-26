@@ -7,6 +7,7 @@
 const { expressjwt } = require('express-jwt');
 const User = require('./models/user.js');
 const jwt = require('jsonwebtoken');
+const { serverError, forbidden, unauthorized } = require('./utils/responses.js');
 require('dotenv').config();
 
 /** 
@@ -21,14 +22,15 @@ function auth(req, res, next) {
 
 // Verifies if the token is valid for the user
 function verifyToken(req, res, next) { 
-  try {
-    // grab the token from the 'Authorization' header eg. from Bruno
-    const token = req.headers['authorization'];
-      console.log('Authorization header:', token); // for debugging
-    // No token, return a nice 'Unauthorized'
-    if (!token) {
-      return res.status(401).send({ error: 'Unauthorized' });
-    }
+    try {
+        // grab the token from the 'Authorization' header eg. from Bruno
+      const token = req.headers['authorization'];
+      console.log('Authorization header:', token); //for debug
+       // No token, return a nice 'Unauthorized'
+      if (!token) {
+          unauthorized('Unauthorized');
+      }
+
     // Cuts off 'Bearer' from the 'value' field in the Header
     const stripBearer = token.startsWith('Bearer ') ? token.slice(7) : token;
       console.log('Token after Bearer removed:', stripBearer); //for debugging
@@ -45,10 +47,9 @@ function verifyToken(req, res, next) {
       req.auth = decoded;
         next();
     });
-
     } catch (error) {
-      console.error('Error verifying token:', error);
-        return res.status(500).send({ error: 'Internal Server Error' });
+        console.error('Error verifying token:', error);
+        serverError(res,  'Internal Server Error' );
     }
 };
 
@@ -70,13 +71,13 @@ function checkUserType(req, res, next) {
     });
         // Prompts nice message if the user is not authorized
         } else {
-          res.status(403).send({ error: 'Unauthorized' });
+          // export default { auth, checkUserType, verifyToken}
+            unauthorized('Unauthorized');
         }
     } catch (error) {
-      console.error('Error checking user type:', error);
-        return res.status(500).send({ error: 'Internal Server Error' });
-  }
+        console.error('Error checking user type:', error);
+         serverError(res,  'Internal Server Error' );
+    }
 }
-
 
 module.exports = { auth, verifyToken, checkUserType };
