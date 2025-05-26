@@ -6,14 +6,27 @@ const { verifyToken } = require('../auth.js');
 const { badRequest, notFound, serverError } = require('../utils/responses.js');
 
 
+
 router.use(verifyToken);
+
+// Capitalize helper
+function capitalizeFirstLetter(string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}
 
 //get all category
 router.get('/categories', async(req, res) => {
     try {
         const userId = req.auth._id;
         const categories = await Category.find({ user: userId });
-        res.send(categories);
+
+        const formattedCatrgories = categories.map(cat => ({
+        ...cat.toObject(),
+        name: capitalizeFirstLetter(cat.name)
+        }));
+
+        res.send(formattedCatrgories);
+
     } catch {
         serverError(res,'Failed to get categories');
     }
@@ -29,7 +42,9 @@ router.get('/categories/:id', async(req, res) => {
 
         //send the post back to the client
         if (category) {
-            res.send(category);
+            const result = category.toObject();
+            result.name = capitalizeFirstLetter(result.name);
+            res.send(result);
         } else{
             notFound(res, `Category with id ${category_id} not found`);
         }
@@ -48,7 +63,7 @@ router.post('/categories', async(req,res) => {
         // const exists = await Category.findOne({ name: req.body.name });
 
         // frontend submit a name, and get back a valid category — either newly created or already existing.
-        const name = req.body.name?.trim(); // trim: string method that removes whitespace from both the beginning and end of a string.
+        const name = req.body.name?.trim().toLowerCase(); // trim: string method that removes whitespace from both the beginning and end of a string.
 
 
         if (!name) {
@@ -59,10 +74,12 @@ router.post('/categories', async(req,res) => {
 
         // if the category name already exists
         if (existing) {
-            return badRequest(res, 'Please use existed Categories');
+            return badRequest(res, 'The category already exsited');
         }
         // Create and save new category
         const category = await Category.create({ name, user: userId });
+        const result = category.toObject();
+        result.name = capitalizeFirstLetter(result.name);
         return res.status(201).send(category);
     }
     catch (err) {
@@ -73,19 +90,44 @@ router.post('/categories', async(req,res) => {
 // Update 
 router.put('/categories/:id', async (req, res) => {
     try {
-        // to make sure the name does not exist
-        const exists = await Category.findOne({ name: req.body.name });
-        if (exists) {
-            notFound(res, 'Category name already exists');
-        };
-        // proceed with update
-        const category = await Category.findByIdAndUpdate(req.params.id, req.body, {returnDocument: 'after'});
-        if (category) {
-            res.send(category);
-        } else {
-            notFound(res, `Category with id ${category_id} not found`);
+        const categoryId = req.params.id;
+        const userId = req.auth._id;
+        const newName = req.body.name?.trim().toLowerCase();
+
+        // 🔒 Check ownership first
+        const category = await Category.findById(categoryId);
+        if (!category) {
+        return notFound(res, `Category with id ${categoryId} not found`);
         }
-    } catch (err){
+
+        if (category.user.toString() !== userId.toString()) {
+        return res.status(403).send({ error: 'Forbidden' }); // Not your category
+        }
+
+        if (!newName) {
+            return badRequest(res, 'Category name is required')};
+        
+        // Check if another category with the same name exists
+        const exists = await Category.findOne({ name: newName, user: req.auth._id, _id: { $ne: categoryId } });
+        if (exists) {
+            return badRequest(res, 'Category name already exists')};
+
+        const updatedCategory = await Category.findOneAndUpdate(
+        { _id: categoryId, user: userId },
+        { name: newName },
+        { new: true,
+            runValidators: true,
+            context: 'query',
+        }
+        );
+
+        if (!updatedCategory) {
+            return notFound(res, `Category with id ${req.params.id} not found`);
+        }
+        const result = updatedCategory.toObject();
+        result.name = capitalizeFirstLetter(result.name);
+        res.send(result);
+    } catch (err) {
         badRequest(res, err.message);
     }
 });
@@ -93,15 +135,19 @@ router.put('/categories/:id', async (req, res) => {
 
 // Delete 
 router.delete('/categories/:id', async (req, res) => {
-    try{
-        const category = await Category.findByIdAndDelete(req.params.id);
-        if (category) {
-            res.send({ message: `Category '${category.name}' has been deleted.` });
+    try {
+        const deleted = await Category.findOneAndDelete({
+            _id: req.params.id,
+            user: req.auth._id
+        });
+
+        if (deleted) {
+            res.send({ message: `Category '${deleted.name}' deleted.` });
         } else {
-            notFound(res, `Category with id ${category_id} not found`);
+            notFound(res, `Category with id ${req.params.id} not found`);
         }
     } catch {
-        badRequest(res, 'Invalid expense ID format');
+        badRequest(res, 'Invalid category ID format');
     }
 });
 
