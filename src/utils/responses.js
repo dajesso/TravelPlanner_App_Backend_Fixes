@@ -67,6 +67,9 @@ module.exports = {
   notFound,
   badRequest,
   serverError,
+  unauthorized,
+  forbidden,
+  goodRequest,
   formatValidationErrors
 };
 

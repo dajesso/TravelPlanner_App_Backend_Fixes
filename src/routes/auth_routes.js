@@ -97,13 +97,19 @@ router.post('/login', async (req, res) => {
 //     }
 // })
 
-router.post('/register', auth, verifyToken, async (req, res) => {
+router.post('/register', async (req, res) => {
   try {
     const { email, password } = req.body;
 
     // Check required fields
     if (!email || !password) {
       return badRequest(res, 'Email and password are required');
+    }
+
+    // Check if the user already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return badRequest(res, 'Email is already registered');
     }
 
     // Create new user
