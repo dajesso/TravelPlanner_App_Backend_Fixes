@@ -4,6 +4,11 @@ const app = require('../src/index.js')
 let token = ''; 
 let tripId = '';
 
+
+// fixed the trip_testing script so we needed to create a trip without a ID grab that id for testing the second issue
+// was that we needed to make arrival date and depature date MM/DD/YYYY when creati
+
+
 //Set up for test
 beforeAll(async () => {
     // Login and get token

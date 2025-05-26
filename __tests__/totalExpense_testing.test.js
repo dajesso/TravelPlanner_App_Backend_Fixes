@@ -4,6 +4,9 @@
 //3. when they add one expense...the total expense should auto add on
 //4. when we request all the trips from an authenticated user ......
 
+// made sure the password was salted and hashed the arrival time and departure time was in the wrong format.
+// most of the code was correct without the fixes
+
 const request = require('supertest');
 const app = require('../src/index.js')
 const bcrypt = require('bcrypt');
