@@ -101,9 +101,16 @@ router.delete('/expenses/:id', async (req, res) => {
     try {
         const expense = await Expense.findByIdAndDelete(req.params.id);
         if (expense) {
+            // Capture before deleting
+            const tripId = expense.trip; 
+            // Actually delete the expense
+            await expense.deleteOne(); 
+
+            // Recalculate total after deletion
             const total = await Expense.getTotalForTrip(tripId);
             await Trip.findByIdAndUpdate(tripId, { totalExpense: total });
-            res.send({ message: `Expense '${expense.name}' has been deleted.` });
+
+            res.send({ message: `Expense '${expense.description}' has been deleted.` });
         } else {
             notFound(res, `Expense with id ${req.params.id} not found`);
         }

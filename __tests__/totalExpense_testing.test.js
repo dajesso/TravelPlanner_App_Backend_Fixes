@@ -14,28 +14,41 @@ let categoryId = '';
 
 //Set up for test
 beforeAll(async () => {
-    // Login and get token
-    const res = await request(app)
+  // Optional: clear users or use unique email to avoid duplicates
+  const email = `test${Date.now()}@example.com`;
+
+  // Register new user
+  const registerRes = await request(app)
+    .post('/auth/register')
+    .send({
+      email,
+      password: 'password',
+      name: 'Test User'
+    });
+  console.log('Register response:', registerRes.statusCode, registerRes.body);
+  expect(registerRes.statusCode).toBe(201);
+
+  // Login to get token
+  const loginRes = await request(app)
     .post('/auth/login')
-    .send({ email: 'test@example.com', password: 'password' });
+    .send({ email, password: 'password' });
+  expect(loginRes.statusCode).toBe(200);
+  token = loginRes.body.token;
+  expect(token).toBeDefined();
 
-    //get the token
-    token = res.body.token;
-
-    // Create test trip
-    const trip = await request(app)
+  // Create trip
+  const tripRes = await request(app)
     .post('/trips')
     .set('Authorization', `Bearer ${token}`)
     .send({ location: 'TestLocation', arrivalDate: '2025-01-01', departureDate: '2025-01-05' });
-  
-    tripId = trip.body._id;
-    // Create test category
-    const category = await request(app)
-        .post('/categories')
-        .set('Authorization', `Bearer ${token}`)
-        .send({ name: 'TestCategory' });
+  tripId = tripRes.body._id;
 
-    categoryId = category.body._id;
+  // Create category
+  const categoryRes = await request(app)
+    .post('/categories')
+    .set('Authorization', `Bearer ${token}`)
+    .send({ name: 'TestCategory' });
+  categoryId = categoryRes.body._id;
 });
 
 

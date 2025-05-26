@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "node --watch src/index.js",
     "seed": "node src/seed.js",
-    "trip_testing": "jest --testPathPattern=__tests__/trip_testing.test.js"
+    "trip_testing": "jest --testPathPattern=__tests__/trip_testing.test.js",
+    "totalExpense_testing": "jest --testPathPattern=__tests__/totalExpense_testing.test.js",
+    "test": "jest"
   },
   "repository": {
     "type": "git",
