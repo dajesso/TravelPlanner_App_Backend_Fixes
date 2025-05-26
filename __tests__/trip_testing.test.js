@@ -9,19 +9,20 @@ beforeAll(async () => {
     // Login and get token
     const res = await request(app)
     .post('/login')
-    .send({ email: 'test@example.com', password: 'password' });
+    .send({ email: 'jesso@jesso.me', password: 'password' });
 
     //get the token
     token = res.body.token;
 
+
     // Create a trip and store its ID for testing
     const tripRes = await request(app)
-    .post(`/trips/${tripId}`)
+    .post('/trips')
     .set('Authorization', `Bearer ${token}`)
     .send({
         location: 'Test City',
-        arrivalDate: '2025-06-01',
-        departureDate: '2025-06-10'
+        arrivalDate: "08/09/1997",
+        departureDate: "09/09/2025",
     });
     tripId = tripRes.body._id;
 });
@@ -32,6 +33,8 @@ beforeAll(async () => {
 
 describe("Get one trip and return the check _id, location, arrivalDate, departureDate, and totalExpense", () => {
     it("should return one trip with its the correct keys.", async () => {
+
+
         const res = await request(app)
         .get(`/trips/${tripId}`)
         .set('Authorization', `Bearer ${token}`);
@@ -63,9 +66,13 @@ describe("Check if login is successfull", () => {
 
 describe("Check if trip ID exists in the database", () => {
     it("should return a trip with the given ID", async () => {
+
+        
+        
         const res = await request(app)
         .get(`/trips/${tripId}`)
         .set('Authorization', `Bearer ${token}`);
+        
         
         // must be 200 OK otherwise the test will fail
         expect(res.statusCode).toBe(200);

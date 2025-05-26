@@ -19,7 +19,7 @@ beforeAll(async () => {
 
   // Register new user
   const registerRes = await request(app)
-    .post('/auth/register')
+    .post('/register')
     .send({
       email,
       password: 'password',
@@ -30,7 +30,7 @@ beforeAll(async () => {
 
   // Login to get token
   const loginRes = await request(app)
-    .post('/auth/login')
+    .post('/login')
     .send({ email, password: 'password' });
   expect(loginRes.statusCode).toBe(200);
   token = loginRes.body.token;
