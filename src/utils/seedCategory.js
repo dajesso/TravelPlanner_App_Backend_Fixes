@@ -1,5 +1,5 @@
 const Category = require('../models/category');
-
+// State the fixed 6 categories
 const fixedCategories = ['Food', 'Transport', 'Accommodation', 'Activities', 'Shopping', 'Other'];
 
 async function seedCategoriesForUser(userId) {
@@ -13,4 +13,5 @@ async function seedCategoriesForUser(userId) {
   await Category.bulkWrite(operations);
 }
 
-module.exports = { seedCategoriesForUser };
+
+module.exports = { seedCategoriesForUser};
