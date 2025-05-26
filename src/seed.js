@@ -98,7 +98,7 @@ async function seed() {
     expenses[1].category = createdCategories[1]._id;
     
     // Create Expense
-    const createdExpenses = await Expense.create(expenses);
+    // const createdExpenses = await Expense.create(expenses);
     
      // Recalculate totalExpense for each trip
     for (const trip of createdTrips) {

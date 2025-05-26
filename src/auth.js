@@ -28,7 +28,7 @@ function verifyToken(req, res, next) {
       console.log('Authorization header:', token); //for debug
        // No token, return a nice 'Unauthorized'
       if (!token) {
-          unauthorized('Unauthorized');
+          return unauthorized(res, 'Unauthorized');
       }
 
     // Cuts off 'Bearer' from the 'value' field in the Header
@@ -72,7 +72,7 @@ function checkUserType(req, res, next) {
         // Prompts nice message if the user is not authorized
         } else {
           // export default { auth, checkUserType, verifyToken}
-            unauthorized('Unauthorized');
+          return unauthorized(res, 'Unauthorized');
         }
     } catch (error) {
         console.error('Error checking user type:', error);
