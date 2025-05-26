@@ -13,3 +13,4 @@ categorySchema.index({ name: 1, user: 1 }, { unique: true });
 const Category = model('Category', categorySchema);
 
 module.exports = Category;
+

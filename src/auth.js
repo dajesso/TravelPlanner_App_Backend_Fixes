@@ -1,129 +1,82 @@
-// this is the auth middle were 
+// this is the auth middle ware 
 // will check if a user is of type admin or user
 
-// import { expressjwt } from "express-jwt"
-// import User from './models/user.js'
-// import 'dotenv/config';
-// import db from './db.js'
-// import jwt from 'jsonwebtoken'
-// const { verify } = jwt
+
+
 
 const { expressjwt } = require('express-jwt');
 const User = require('./models/user.js');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
+/** 
+ Store a key word in '.env' to verify tokens, and it should be defined by each person that installs the app in their local machine
+*/ 
 const secret = process.env.JWT_SECRET
-// auth middleware function auth takes in params of req, rest, next
 
-// export function auth(req, res, next) {
-//     return expressjwt({ secret: process.env.JWT_SECRET, algorithms: ["HS256"] })(req, res, next)
-// }
+// Middleware that uses express-jwt to verify auth token
 function auth(req, res, next) {
-    return expressjwt({ secret, algorithms: ["HS256"] })(req, res, next);
+  return expressjwt({ secret, algorithms: ["HS256"] })(req, res, next);
 }
 
-// checkUserType function checks if the user is an admin or a regular user
-
-// we verify the token
-
-// export function verifyToken(req,res, next) { 
-    
-
-//     try{
-
-//     const token = req.headers['authorization']
-    
-//     const stripBearer = token.startsWith('Bearer ') ? token.slice(7) : token;
-
-//     if (!token) {
-//         return res.status(401).send({ error: 'Unauthorized' })
-//     }
-//     jwt.verify(stripBearer, secret, (err, decoded) => {
-//         if (err) {
-//             return res.status(403).send({ error: 'Forbidden' })
-//         }
-//         req.auth = decoded
-//         next()
-//     })
-//     }catch (error) {        
-//         console.error('Error verifying token:', error)
-//         return res.status(500).send({ error: 'Internal Server Error' })
-//     }
-// }
+// Verifies if the token is valid for the user
 function verifyToken(req, res, next) { 
-    try {
-        const token = req.headers['authorization'];
-        console.log('Authorization header:', token); //for debug
-        if (!token) {
-            return res.status(401).send({ error: 'Unauthorized' });
-        }
+  try {
+    // grab the token from the 'Authorization' header eg. from Bruno
+    const token = req.headers['authorization'];
+      console.log('Authorization header:', token); // for debugging
+    // No token, return a nice 'Unauthorized'
+    if (!token) {
+      return res.status(401).send({ error: 'Unauthorized' });
+    }
+    // Cuts off 'Bearer' from the 'value' field in the Header
+    const stripBearer = token.startsWith('Bearer ') ? token.slice(7) : token;
+      console.log('Token after Bearer removed:', stripBearer); //for debugging
 
-        const stripBearer = token.startsWith('Bearer ') ? token.slice(7) : token;
-        console.log('Token after Bearer removed:', stripBearer); //for debug
+    // Decoding the token  
+    jwt.verify(stripBearer, secret, (err, decoded) => {
+    if (err) {
+      console.log('JWT verify error:', err); // for debugging
+        return res.status(403).send({ error: 'Forbidden' });
+    }
+      console.log('DECODED TOKEN:', decoded);// for debugging
 
-        jwt.verify(stripBearer, secret, (err, decoded) => {
-            if (err) {
-                console.log('JWT verify error:', err); // for debug
-                return res.status(403).send({ error: 'Forbidden' });
-            }
-            console.log('DECODED TOKEN:', decoded);// for debug
-            req.auth = decoded;
-            next();
-        });
+      // Stores decoded token for use throughout app
+      req.auth = decoded;
+        next();
+    });
+
     } catch (error) {
-        console.error('Error verifying token:', error);
+      console.error('Error verifying token:', error);
         return res.status(500).send({ error: 'Internal Server Error' });
     }
 };
 
-
-// export function checkUserType(req, res, next) {
-
-//     try{
-//     if (req.auth) {
-
-//         // finds by the email then returns if its a user or admin
-//         // we use the findOne method to find the user by email
-
-//         User.findOne({ email: req.auth.email }).then(user => {
-//             if (user && user.accountType === 'admin') {
-//                 req.userType = 'admin'
-//                 //res.status(200).send({ message: 'Authenticated Admin' })
-//             } else {
-//                 //res.status(200).send({ message: 'Authenticated User' })
-//                 req.userType = 'user'
-//             }
-//             next()
-//         })
-//     } else {
-//         res.status(403).send({ error: 'Unauthorized' })
-//     }
-//     }catch(error) {
-//         console.error('Error checking user type:', error)
-//         return res.status(500).send({ error: 'Internal Server Error' })
-//     }
-// }
+// Check if user is 'admin' or 'user'
 function checkUserType(req, res, next) {
-    try {
-        if (req.auth) {
-            User.findOne({ email: req.auth.email }).then(user => {
-                if (user && user.accountType === 'admin') {
-                    req.userType = 'admin';
-                } else {
-                    req.userType = 'user';
-                }
-                next();
-            });
+  try {
+    if (req.auth) {
+
+      // Find user in DB with email from the JWT  
+      User.findOne({ email: req.auth.email }).then(user => {
+
+        // Identify user as 'admin' or 'user'
+        if (user && user.accountType === 'admin') {
+          req.userType = 'admin';
         } else {
-            res.status(403).send({ error: 'Unauthorized' });
+          req.userType = 'user';
+        }
+    next();
+    });
+        // Prompts nice message if the user is not authorized
+        } else {
+          res.status(403).send({ error: 'Unauthorized' });
         }
     } catch (error) {
-        console.error('Error checking user type:', error);
+      console.error('Error checking user type:', error);
         return res.status(500).send({ error: 'Internal Server Error' });
-    }
+  }
 }
 
 
-// export default { auth, checkUserType, verifyToken}
 module.exports = { auth, verifyToken, checkUserType };
