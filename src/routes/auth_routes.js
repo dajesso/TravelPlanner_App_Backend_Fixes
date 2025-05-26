@@ -21,6 +21,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const { auth, verifyToken } = require('../auth.js');
 const User = require('../models/user.js');
+const { seedCategoriesForUser } = require('../utils/seedCategory.js');
 require('dotenv').config();
 
 const router = Router();
@@ -41,6 +42,10 @@ router.post('/login', async (req, res) => {
                     email: user.email,
                     exp: Math.floor(Date.now() / 1000) + (60 * 60) // 1 hour
                 }, secret)
+
+                // Seed fixed categories after login
+                await seedCategoriesForUser(user._id);
+
                 res.send({ token, email: user.email, accountType: user.accountType})
             } else {
                 res.status(404).send({ error: 'Email or password incorrect' })
