@@ -1,3 +1,5 @@
+// This file handles the errors automatically:
+
 // error handling for routes
 function notFound(res, message = 'Resource not found') {
   return res.status(404).send({ error: message });
@@ -38,6 +40,7 @@ function formatValidationErrors(errors) {
   }
   return simplifiedErrors;
 };
+
 module.exports = {
   notFound,
   badRequest,

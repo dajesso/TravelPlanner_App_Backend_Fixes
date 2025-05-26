@@ -2,6 +2,7 @@
 //1. as the user enter get all trips, it will show total expense for each trips
 //2. when they enter get one trips there will be total exense for the ONE trip
 //3. when they add one expense...the total expense should auto add on
+//4. when we request all the trips from an authenticated user ......
 
 const request = require('supertest');
 const app = require('../src/index.js')
