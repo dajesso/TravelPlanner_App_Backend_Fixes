@@ -4,12 +4,15 @@ const { Schema, model } = mongoose;
 
 
 const expenseSchema = new Schema({
-    amount: {type:  Number, required: true},
-    description: { type: String, required: true },
-    category: { type: Schema.Types.ObjectId, ref: 'Category', required: [true,'category field is required']}, // this is for handling validation error
-    trip: { type: Schema.Types.ObjectId, ref: 'Trip', required: [true,'trip field is required']}, // this is for handling validation error
+    amount: {type:  Number, required: [true, 'Amount is required']},
+    description: { type: String, required: [true, 'Description is required']},
+    // this is for handling validation error
+    category: { type: Schema.Types.ObjectId, ref: 'Category', required: [true,'category field is required']}, 
+    // this is for handling validation error
+    trip: { type: Schema.Types.ObjectId, ref: 'Trip', required: [true,'trip field is required']}, 
 });
 
+// Total expenses
 expenseSchema.statics.getTotalForTrip = async function(tripId) {
 //  Use MongoDB's aggregation to calculate the total
   const result = await this.aggregate([

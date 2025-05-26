@@ -3,20 +3,29 @@ const express = require('express');
 const Expense = require('../models/expense.js');
 const router = express.Router();
 const Trip = require('../models/trip.js')
-const { verifyToken } = require('../auth.js');
+const { verifyToken } = require('../auth.js'); 
 const { badRequest, notFound, serverError } = require('../utils/responses.js');
 
 // Protect all routes in this router
 router.use(verifyToken);
 
-//get all expense
+// get all expenses
 router.get('/expenses', async(req, res)=> {
     try {
-        res.send(await Expense.find().populate('category'));
+        // Get trip ID from query param
+        const tripId = req.query.trip; 
+        if (!tripId) {
+            return badRequest(res, 'Trip ID is required to fetch expenses');
+        }
+        // Find all expenses that belong to the specified trip
+        const expenses = await Expense.find({ trip: tripId }).populate('category');
+        res.send(expenses);
+        
     } catch(err) {
         serverError(res, 'Failed to get expenses');
     }
 });
+
 //Get one expense
 router.get('/expenses/:id', async(req, res) => {
     try {
@@ -33,10 +42,11 @@ router.get('/expenses/:id', async(req, res) => {
         badRequest(res, 'Invalid expense ID format');
     }
 });
+
 // Create expense
 router.post('/expenses', async(req,res) => {
     try {
-        //Create the expense with the trip ID coming from request body or session
+        // Create the expense with the trip ID coming from request body or session
         const newExpense = await Expense.create({
         amount: req.body.amount,
         description: req.body.description,
@@ -44,24 +54,25 @@ router.post('/expenses', async(req,res) => {
         trip: req.body.trip  // make sure trip ID is provided here
         });
 
-        // 2. Calculate total expense for this trip using your static method
+        // Calculate total expense for this trip using your static method
         const total = await Expense.getTotalForTrip(newExpense.trip);
 
-        // 3. Update the trip document's totalExpense field
+        // Update the trip document's totalExpense field
         await Trip.findByIdAndUpdate(newExpense.trip, { totalExpense: total });
 
-        // 4. Respond with success and new expense
+        // Respond with success and new expense
         res.status(201).send(newExpense);
     }
     catch (err) {
         // solving the problem: it will return "something went wrong" instead of path "Path" is required 
         if (err.name === 'ValidationError') {
-            // Send the detailed validation errors object
-            return badRequest(res, formatValidationErrors(err.errors));
+            const errors = Object.values(err.errors).map(e => e.message);
+            return res.status(400).json({ error: errors });
         }
-         // For other errors, send generic error message
-        badRequest(res, err.message);
-        }
+
+        console.error(err);
+        return res.status(500).json({ error: 'Something went wrong on the server' });
+}
 });
 
 // Update 
@@ -84,6 +95,7 @@ async function update(req, res) {
 
 router.put('/expenses/:id', update);
 
+
 // Delete 
 router.delete('/expenses/:id', async (req, res) => {
     try {
@@ -99,5 +111,6 @@ router.delete('/expenses/:id', async (req, res) => {
         badRequest(res, 'Invalid expense ID format');
     }
 });
+
 
 module.exports = router;
