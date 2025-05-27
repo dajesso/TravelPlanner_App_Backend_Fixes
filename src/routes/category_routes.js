@@ -4,6 +4,7 @@ const Category = require('../models/category');
 const router = express.Router();
 const { verifyToken } = require('../auth.js');
 const { badRequest, notFound, serverError, forbidden } = require('../utils/responses.js');
+const { handleError } = require('../utils/helpers.js');
 
 
 
@@ -60,14 +61,6 @@ async function checkNameUnique(name, userId, excludeId = null) {
   if (exists) throw { status: 400, message: 'Category name already exists' };
 }
 
-// Error handler helper
-function handleError(res, err, defaultMessage) {
-  if (err.status === 404) return notFound(res, err.message);
-  if (err.status === 403) return forbidden(res, err.message);
-  if (err.status === 400) return badRequest(res, err.message);
-  return serverError(res, err.message || defaultMessage);
-}
-
 //get all category
 router.get('/categories', async(req, res) => {
     try {
@@ -105,7 +98,7 @@ router.post('/categories', validateCategoryName, async(req,res) => {
 // Update 
 router.put('/categories/:id', validateCategoryName, async (req, res) => {
     try {
-        await checkCategoryOwnership(req,params.id, req.userId);
+        await checkCategoryOwnership(req.params.id, req.userId);
         await checkNameUnique(req.cleanedCategoryName, req.userId, req.params.id);
 
         const updatedCategory = await Category.findByIdAndUpdate(
@@ -138,8 +131,8 @@ router.delete('/categories/:id', async (req, res) => {
         } else {
             notFound(res, `Category with id ${req.params.id} not found`);
         }
-    } catch {
-        badRequest(res, 'Invalid category ID format');
+    } catch (err){
+        handleError(res, err, 'Invalid category ID format');
     }
 });
 

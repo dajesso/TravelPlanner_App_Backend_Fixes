@@ -1,12 +1,16 @@
 const { badRequest, notFound, serverError, forbidden } = require('./responses');
 
 // General error handler with status-based routing
-function handleError(res, err, defaultMessage) {
-  if (err.status === 404) return notFound(res, err.message);
-  if (err.status === 403) return forbidden(res, err.message);
-  if (err.status === 400) return badRequest(res, err.message);
-  return serverError(res, err.message || defaultMessage);
-}
+function handleError(res, err, defaultMessage= 'Something went wrong') {
+    const { status = 500, message = defaultMessage } = err;
+    const responses = {
+        400: require('../utils/responses').badRequest,
+        403: require('../utils/responses').forbidden,
+        404: require('../utils/responses').notFound,
+        500: require('../utils/responses').serverError,
+    };
+    return (responses[status] || responses[500])(res, message);
+    }
 
 // Standardized not found check with custom entity name
 function handleNotFoundDocument(res, doc, id, entity = 'Item') {
