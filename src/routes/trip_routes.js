@@ -10,6 +10,17 @@ const { badRequest, notFound, serverError } = require('../utils/responses.js');
 // Protect all routes in this router
 router.use(verifyToken);
 
+//formatting date output
+function formatTrip(trip) {
+  return {
+    _id: trip._id,
+    location: trip.location,
+    arrivalDate: moment(trip.arrivalDate).format('DD/MM/YYYY'),
+    departureDate: moment(trip.departureDate).format('DD/MM/YYYY'),
+    totalExpense: trip.totalExpense,
+    userId: trip.userId
+  };
+}
 
 // TRIP ROUTES
 
@@ -24,7 +35,9 @@ router.get('/trips', async (req, res) => {
     }
     // 3. find all the trips where the user is the owner and return them
     const trips = await Trip.find({ userId: req.auth._id });
-    return res.json(trips);
+    // formatting the output
+    const formattedTrips = trips.map(formatTrip);
+    return res.json(formattedTrips);
 
   } catch(err) {
     console.error(err);
@@ -42,7 +55,7 @@ router.get('/trips/:id', async (req, res) => {
   const trip = await Trip.findOne({ _id: tripId }); 
   // send the trip back to the client
   if (trip) {
-    res.send(trip)
+    res.send(formatTrip(trip));
     // return an meaningful message to the client in case of error
   } else {
     res.status(404).send({ error: `Trip with id ${tripId} not found`})
