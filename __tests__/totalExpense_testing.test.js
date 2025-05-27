@@ -4,8 +4,12 @@
 //3. when they add one expense...the total expense should auto add on
 //4. when we request all the trips from an authenticated user ......
 
+// made sure the password was salted and hashed the arrival time and departure time was in the wrong format.
+// most of the code was correct without the fixes
+
 const request = require('supertest');
 const app = require('../src/index.js')
+const bcrypt = require('bcrypt');
 
 // will store value later
 let token = ''; 
@@ -16,13 +20,15 @@ let categoryId = '';
 beforeAll(async () => {
   // Optional: clear users or use unique email to avoid duplicates
   const email = `test${Date.now()}@example.com`;
+  const password = await bcrypt.hash("password", 10)
 
   // Register new user
   const registerRes = await request(app)
-    .post('/auth/register')
+    .post('/register')
     .send({
       email,
-      password: 'password',
+      
+      password: password,
       name: 'Test User'
     });
   console.log('Register response:', registerRes.statusCode, registerRes.body);
@@ -30,8 +36,8 @@ beforeAll(async () => {
 
   // Login to get token
   const loginRes = await request(app)
-    .post('/auth/login')
-    .send({ email, password: 'password' });
+    .post('/login')
+    .send({ email, password });
   expect(loginRes.statusCode).toBe(200);
   token = loginRes.body.token;
   expect(token).toBeDefined();
@@ -40,7 +46,7 @@ beforeAll(async () => {
   const tripRes = await request(app)
     .post('/trips')
     .set('Authorization', `Bearer ${token}`)
-    .send({ location: 'TestLocation', arrivalDate: '2025-01-01', departureDate: '2025-01-05' });
+    .send({ location: 'TestLocation', arrivalDate: '08/09/1997', departureDate: '09/09/2025' });
   tripId = tripRes.body._id;
 
   // Create category
