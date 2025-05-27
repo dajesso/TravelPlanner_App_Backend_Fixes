@@ -7,60 +7,87 @@ const { badRequest, notFound } = require('../utils/responses.js');
 const { handleError } = require('../utils/helpers.js');
 
 
-
+// Protect all category routes with JWT token verification
 router.use(verifyToken);
 
-// Middleware to extract userId for easier access
+// Helpers------
+
+// Extracts user ID from the token and attaches it to the request object
 function extractUserId(req, res, next) {
-  req.userId = req.auth._id;
-  next();
+    // Store the user's ID from the decoded token (auth middleware) onto the request
+    req.userId = req.auth._id;
+    // Continue 
+    next();
 }
+// Apply this middleware globally to all routes in this router
 router.use(extractUserId);
 
-// Capitalize helper
+
+// Utility: Capitalizes the first letter of a string (used for display formatting)
 function capitalizeFirstLetter(string) {
-  return string.charAt(0).toUpperCase() + string.slice(1);
+    // Get the first character
+    // make it uppercase
+    // add the rest of the string
+    // string.slice(1) returns a copy of the original string, starting from index 1 to the end.
+    return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
-// Format category for responses
+// Formats a category by capitalizing its name before sending to the client
 function formatCategory(category) {
-  const obj = category.toObject();
-  obj.name = capitalizeFirstLetter(obj.name);
-  return obj;
+    // Convert Mongoose document to plain object
+    const obj = category.toObject();
+    // Capitalize the first letter of the name
+    obj.name = capitalizeFirstLetter(obj.name);
+    return obj;
 }
 
-// Middleware to validate and clean category name input
+// Middleware to clean and validate the 'name' field for categories
 function validateCategoryName(req, res, next) {
-  const name = req.body.name?.trim().toLowerCase();
-  if (!name) return badRequest(res, 'Category name is required');
-  req.cleanedCategoryName = name;
-  next();
+    // Access name, remove extra spaces, convert to lowercase
+    const name = req.body.name?.trim().toLowerCase();
+    // If name is empty or missing, return a 400 error
+    if (!name) return badRequest(res, 'Category name is required');
+    // Store cleaned name on request object for later use
+    req.cleanedCategoryName = name;
+    next();
 }
 
-// Unified response sender for single or multiple categories
+// Sends a single category or list of categories after formatting
 function sendCategoryOrCategories(res, data) {
-  if (Array.isArray(data)) {
-    return res.send(data.map(formatCategory));
-  }
-  return res.send(formatCategory(data));
+    // If the data is a list of categories
+    if (Array.isArray(data)) {
+        // Format each category and send the list
+        return res.send(data.map(formatCategory));
+    }
+    // If it's a single category, format and send it
+    return res.send(formatCategory(data));
 }
 
-// Check category exist and ownership
+// Checks if a category exists and if it belongs to the requesting user
 async function checkCategoryOwnership(categoryId, userId) {
-  const category = await Category.findById(categoryId);
-  if (!category) throw { status: 404, message: `Category with id ${categoryId} not found` };
-  if (category.user.toString() !== userId.toString()) throw { status: 403, message: 'Forbidden' };
-  return category;
+    // Find the category by its ID
+    const category = await Category.findById(categoryId);
+    // If not found, throw a 404 error
+    if (!category) throw { status: 404, message: `Category with id ${categoryId} not found` };
+
+    // If it exists but belongs to another user, throw a 403
+    if (category.user.toString() !== userId.toString()) throw { status: 403, message: 'Forbidden' };
+    return category;
 }
 
-// Check category name uniqueness
+// Ensures the category name is unique for the given user, with optional exclusion for updates
 async function checkNameUnique(name, userId, excludeId = null) {
-  const query = { name, user: userId };
-  if (excludeId) query._id = { $ne: excludeId };
-  const exists = await Category.findOne(query);
-  if (exists) throw { status: 400, message: 'Category name already exists' };
+    // Build query to find category with the same name by this user
+    const query = { name, user: userId };
+    // If updating, ignore the current category using $ne (not equal)
+    if (excludeId) query._id = { $ne: excludeId };
+    // Look for any existing matching category
+    const exists = await Category.findOne(query);
+    if (exists) throw { status: 400, message: 'Category name already exists' };
 }
 
+
+// Routed Handles -------
 //get all category
 router.get('/categories', async(req, res) => {
     try {
@@ -103,9 +130,13 @@ router.put('/categories/:id', validateCategoryName, async (req, res) => {
 
         const updatedCategory = await Category.findByIdAndUpdate(
             req.params.id,
+            // Updated data
             { name: req.cleanedCategoryName },
+            // Return the updated document instead of the old one
             { new: true,
+                // Run Mongoose schema validation rules
                 runValidators: true,
+                // Required for some validators (like unique) to behave correctly
                 context: 'query',
             }
         );
