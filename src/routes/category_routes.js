@@ -72,8 +72,8 @@ function handleError(res, err, defaultMessage) {
 router.get('/categories', async(req, res) => {
     try {
         const categories = await Category.find({ user: req.userId });
-        sendCategoryOrCategories(res, category);
-    } catch {
+        sendCategoryOrCategories(res, categories);
+    } catch (err) {
         handleError(res,err, 'Failed to get categories');
     }
 });
@@ -94,7 +94,7 @@ router.post('/categories', validateCategoryName, async(req,res) => {
         await checkNameUnique(req.cleanedCategoryName, req.userId);
 
         // Create and save new category
-        const category = await Category.create({ name: req.cleanedCategoryName, user: userId });
+        const category = await Category.create({ name: req.cleanedCategoryName, user: req.userId });
         res.status(201).send(formatCategory(category));
     }
     catch (err) {
@@ -106,7 +106,7 @@ router.post('/categories', validateCategoryName, async(req,res) => {
 router.put('/categories/:id', validateCategoryName, async (req, res) => {
     try {
         await checkCategoryOwnership(req,params.id, req.userId);
-        await checkNameUnique(req.cleanedCategoryName, req.userId, req,params.id);
+        await checkNameUnique(req.cleanedCategoryName, req.userId, req.params.id);
 
         const updatedCategory = await Category.findByIdAndUpdate(
             req.params.id,

@@ -5,9 +5,22 @@ const router = express.Router();
 const Trip = require('../models/trip.js')
 const { verifyToken } = require('../auth.js'); 
 const { badRequest, notFound, serverError } = require('../utils/responses.js');
+const { handleError, handleValidationError } = require('../utils/helpers.js');
 
 // Protect all routes in this router
 router.use(verifyToken);
+
+//helpers
+async function updateTripTotal(tripId) {
+  const total = await Expense.getTotalForTrip(tripId);
+  await Trip.findByIdAndUpdate(tripId, { totalExpense: total });
+}
+
+async function findExpenseOrFail(id) {
+  const expense = await Expense.findById(id);
+  if (!expense) throw { status: 404, message: `Expense with id ${id} not found` };
+  return expense;
+}
 
 // get all expenses
 router.get('/expenses', async(req, res)=> {
@@ -22,7 +35,7 @@ router.get('/expenses', async(req, res)=> {
         res.send(expenses);
         
     } catch(err) {
-        serverError(res, 'Failed to get expenses');
+        handleError(res, err, 'Failed to get expenses');
     }
 });
 
@@ -30,16 +43,11 @@ router.get('/expenses', async(req, res)=> {
 router.get('/expenses/:id', async(req, res) => {
     try {
          // Get the id
-        const expense_id = req.params.id; // string
-        const expense = await Expense.findById(expense_id);
-        //send the post back to the client
-        if (expense) {
-            res.send(expense);
-        } else{
-            notFound(res, `Expense with id ${req.params.id} not found`);
-        }
+        const expense = await findExpenseOrFail(req.params.id);
+        res.send(expense);
+
     } catch (err) {
-        badRequest(res, 'Invalid expense ID format');
+        handleError(res, err, 'Invalid expense ID format');
     }
 });
 
@@ -54,68 +62,48 @@ router.post('/expenses', async(req,res) => {
         trip: req.body.trip  // make sure trip ID is provided here
         });
 
-        // Calculate total expense for this trip using your static method
-        const total = await Expense.getTotalForTrip(newExpense.trip);
-
-        // Update the trip document's totalExpense field
-        await Trip.findByIdAndUpdate(newExpense.trip, { totalExpense: total });
+        await updateTripTotal(newExpense.trip);
 
         // Respond with success and new expense
         res.status(201).send(newExpense);
     }
     catch (err) {
         // solving the problem: it will return "something went wrong" instead of path "Path" is required 
-        if (err.name === 'ValidationError') {
-            const errors = Object.values(err.errors).map(e => e.message);
-            return res.status(400).json({ error: errors });
-        }
-
-        console.error(err);
-        return res.status(500).json({ error: 'Something went wrong on the server' });
+        if (err.name === 'ValidationError') 
+            return handleValidationError(res,err);
+        handleError(res, err, 'Failed to create expense');
 }
 });
 
 // Update 
-async function update(req, res) {
+router.put('/expenses/:id', async (req, res) => {
     try {
         // Fetch the post from the db
-        const expense = await Expense.findByIdAndUpdate(req.params.id, req.body, {returnDocument: 'after'});
-        if (expense) {
-            // Recalculate totalExpense for the trip
-            const total = await Expense.getTotalForTrip(expense.trip);
-            await Trip.findByIdAndUpdate(expense.trip, { totalExpense: total });
-            res.send(expense);
+        const updatedExpense = await Expense.findByIdAndUpdate(req.params.id, req.body, {new: true});
+        if (updatedExpense) {
+            await updateTripTotal(updatedExpense.trip);
+            res.send(updatedExpense);
         } else {
-            notFound(res, `Expense with id ${req.params.id} not found`);
+            throw { status: 404, message: `Expense with id ${req.params.id} not found` };
         }
     } catch (err) {
-        badRequest(res, 'Invalid expense ID format');
+        handleError(res, err, 'Failed to update expense');
     }
-};
-
-router.put('/expenses/:id', update);
-
+});
 
 // Delete 
 router.delete('/expenses/:id', async (req, res) => {
     try {
-        const expense = await Expense.findByIdAndDelete(req.params.id);
-        if (expense) {
-            // Capture before deleting
-            const tripId = expense.trip; 
-            // Actually delete the expense
-            await expense.deleteOne(); 
+        const expense = await findExpenseOrFail(req.params.id);
+        const tripId = expense.trip; 
+        // Actually delete the expense
+        await expense.deleteOne(); 
+        await updateTripTotal(tripId)
 
-            // Recalculate total after deletion
-            const total = await Expense.getTotalForTrip(tripId);
-            await Trip.findByIdAndUpdate(tripId, { totalExpense: total });
+        res.send({ message: `Expense '${expense.description}' has been deleted.` });
 
-            res.send({ message: `Expense '${expense.description}' has been deleted.` });
-        } else {
-            notFound(res, `Expense with id ${req.params.id} not found`);
-        }
     } catch (err) {
-        badRequest(res, 'Invalid expense ID format');
+        handleError(res, err, 'Failed to delete expense');
     }
 });
 
