@@ -4,10 +4,10 @@ const { badRequest, notFound, serverError, forbidden } = require('./responses');
 function handleError(res, err, defaultMessage= 'Something went wrong') {
     const { status = 500, message = defaultMessage } = err;
     const responses = {
-        400: require('../utils/responses').badRequest,
-        403: require('../utils/responses').forbidden,
-        404: require('../utils/responses').notFound,
-        500: require('../utils/responses').serverError,
+        400: badRequest,
+        403: forbidden,
+        404: notFound,
+        500: serverError
     };
     return (responses[status] || responses[500])(res, message);
     }
