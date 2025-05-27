@@ -3,7 +3,7 @@ const express = require('express');
 const Category = require('../models/category');
 const router = express.Router();
 const { verifyToken } = require('../auth.js');
-const { badRequest, notFound, serverError, forbidden } = require('../utils/responses.js');
+const { badRequest, notFound } = require('../utils/responses.js');
 const { handleError } = require('../utils/helpers.js');
 
 

@@ -4,7 +4,7 @@ const Expense = require('../models/expense.js');
 const router = express.Router();
 const Trip = require('../models/trip.js')
 const { verifyToken } = require('../auth.js'); 
-const { badRequest, notFound, serverError } = require('../utils/responses.js');
+const { badRequest } = require('../utils/responses.js');
 const { handleError, handleValidationError } = require('../utils/helpers.js');
 
 // Protect all routes in this router
