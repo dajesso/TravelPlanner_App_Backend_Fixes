@@ -10,23 +10,31 @@ const { handleError, handleValidationError } = require('../utils/helpers.js');
 // Protect all routes in this router
 router.use(verifyToken);
 
-//helpers
+// Helpers------
+// Recalculate and update the total expense amount for a trip
 async function updateTripTotal(tripId) {
-  const total = await Expense.getTotalForTrip(tripId);
-  await Trip.findByIdAndUpdate(tripId, { totalExpense: total });
+    // Get the sum of all expenses linked to the trip
+    const total = await Expense.getTotalForTrip(tripId);
+    // Update the trip document with the new total expense amount
+    await Trip.findByIdAndUpdate(tripId, { totalExpense: total });
 }
 
+//Find an expense by ID or throw a 404 error if not found
 async function findExpenseOrFail(id) {
-  const expense = await Expense.findById(id);
-  if (!expense) throw { status: 404, message: `Expense with id ${id} not found` };
-  return expense;
+    //Find an expense by ID
+    const expense = await Expense.findById(id);
+    // If not found ID
+    if (!expense) throw { status: 404, message: `Expense with id ${id} not found` };
+    return expense;
 }
 
+// Routes ------
 // get all expenses
 router.get('/expenses', async(req, res)=> {
     try {
         // Get trip ID from query param
         const tripId = req.query.trip; 
+        // If no trip ID provided, respond with bad request error
         if (!tripId) {
             return badRequest(res, 'Trip ID is required to fetch expenses');
         }
@@ -42,7 +50,7 @@ router.get('/expenses', async(req, res)=> {
 //Get one expense
 router.get('/expenses/:id', async(req, res) => {
     try {
-         // Get the id
+        // Find the expense or throw 404 error if not found
         const expense = await findExpenseOrFail(req.params.id);
         res.send(expense);
 
@@ -62,6 +70,7 @@ router.post('/expenses', async(req,res) => {
         trip: req.body.trip  // make sure trip ID is provided here
         });
 
+        // Update the total expenses of the associated trip
         await updateTripTotal(newExpense.trip);
 
         // Respond with success and new expense
@@ -69,8 +78,10 @@ router.post('/expenses', async(req,res) => {
     }
     catch (err) {
         // solving the problem: it will return "something went wrong" instead of path "Path" is required 
+        // If validation error (e.g., missing required field), handle it specially
         if (err.name === 'ValidationError') 
             return handleValidationError(res,err);
+
         handleError(res, err, 'Failed to create expense');
 }
 });
@@ -78,12 +89,17 @@ router.post('/expenses', async(req,res) => {
 // Update 
 router.put('/expenses/:id', async (req, res) => {
     try {
-        // Fetch the post from the db
+        // Find and update the expense with new data, returning the updated document
+        /*By default, findByIdAndUpdate returns the original document as it was before the update.
+        Adding { new: true } makes it return the updated document after applying the changes.*/
         const updatedExpense = await Expense.findByIdAndUpdate(req.params.id, req.body, {new: true});
+
         if (updatedExpense) {
+            // Update total expense for the associated trip after changes
             await updateTripTotal(updatedExpense.trip);
             res.send(updatedExpense);
         } else {
+            // If expense with given ID doesn't exist, throw 404 error
             throw { status: 404, message: `Expense with id ${req.params.id} not found` };
         }
     } catch (err) {
@@ -94,10 +110,16 @@ router.put('/expenses/:id', async (req, res) => {
 // Delete 
 router.delete('/expenses/:id', async (req, res) => {
     try {
+        // Find the expense or throw 404 if not found
         const expense = await findExpenseOrFail(req.params.id);
+
+        // Store trip ID before deletion to update totals later
         const tripId = expense.trip; 
-        // Actually delete the expense
+
+        // Delete the expense document from the database
         await expense.deleteOne(); 
+
+        // Update the trip's total expense after deletion
         await updateTripTotal(tripId)
 
         res.send({ message: `Expense '${expense.description}' has been deleted.` });
