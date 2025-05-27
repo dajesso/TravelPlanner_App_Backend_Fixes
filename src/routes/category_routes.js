@@ -4,6 +4,7 @@ const Category = require('../models/category');
 const router = express.Router();
 const { verifyToken } = require('../auth.js');
 const { badRequest, notFound, serverError, forbidden } = require('../utils/responses.js');
+const { handleError } = require('../utils/helpers.js');
 
 
 
@@ -60,20 +61,12 @@ async function checkNameUnique(name, userId, excludeId = null) {
   if (exists) throw { status: 400, message: 'Category name already exists' };
 }
 
-// Error handler helper
-function handleError(res, err, defaultMessage) {
-  if (err.status === 404) return notFound(res, err.message);
-  if (err.status === 403) return forbidden(res, err.message);
-  if (err.status === 400) return badRequest(res, err.message);
-  return serverError(res, err.message || defaultMessage);
-}
-
 //get all category
 router.get('/categories', async(req, res) => {
     try {
         const categories = await Category.find({ user: req.userId });
-        sendCategoryOrCategories(res, category);
-    } catch {
+        sendCategoryOrCategories(res, categories);
+    } catch (err) {
         handleError(res,err, 'Failed to get categories');
     }
 });
@@ -94,7 +87,7 @@ router.post('/categories', validateCategoryName, async(req,res) => {
         await checkNameUnique(req.cleanedCategoryName, req.userId);
 
         // Create and save new category
-        const category = await Category.create({ name: req.cleanedCategoryName, user: userId });
+        const category = await Category.create({ name: req.cleanedCategoryName, user: req.userId });
         res.status(201).send(formatCategory(category));
     }
     catch (err) {
@@ -105,8 +98,8 @@ router.post('/categories', validateCategoryName, async(req,res) => {
 // Update 
 router.put('/categories/:id', validateCategoryName, async (req, res) => {
     try {
-        await checkCategoryOwnership(req,params.id, req.userId);
-        await checkNameUnique(req.cleanedCategoryName, req.userId, req,params.id);
+        await checkCategoryOwnership(req.params.id, req.userId);
+        await checkNameUnique(req.cleanedCategoryName, req.userId, req.params.id);
 
         const updatedCategory = await Category.findByIdAndUpdate(
             req.params.id,
@@ -138,8 +131,8 @@ router.delete('/categories/:id', async (req, res) => {
         } else {
             notFound(res, `Category with id ${req.params.id} not found`);
         }
-    } catch {
-        badRequest(res, 'Invalid category ID format');
+    } catch (err){
+        handleError(res, err, 'Invalid category ID format');
     }
 });
 
