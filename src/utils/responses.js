@@ -36,8 +36,8 @@ function goodRequest(res, email, userAccount, message = 'Good request') {
 
 // format Mongoose validation errors
 // the original error was too long
-//**Raw Mongoose error**:
-`json
+/*Raw Mongoose error:
+json
 {
   "category": {
     "name": "ValidatorError",
@@ -50,7 +50,7 @@ function goodRequest(res, email, userAccount, message = 'Good request') {
     ...
   }
 }`
-
+*/
 function formatValidationErrors(errors) {
 // Create an empty object to store the simplified error messages
   const simplifiedErrors = {};
