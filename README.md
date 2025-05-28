@@ -22,6 +22,8 @@ A backend framework that facilitates routing using HTTP requests and provides mi
 This is a Node.js library that uses the JSON Web Token (JWT), a method to create, verify and decode information shared between two parties. It allows for a secure route, avoiding unwanted entities from accessing the user's information (Geeks for Geeks, 2025)[^4].
 #### Bcrypt
 Package with a password-hashing function that masks a user's password in a random sequence of letters and numbers. This is a one-way hashing function, which means it is computationally infeasible to reverse the hash back to the original password (Auth0, 2021)[^5].
+#### Cors
+According to MDN Web Docs (2025)[^CORS], ```cors``` package in Node.js + Express.js helps configure and respond with the adequate CORS headers in HTTP responses. These headers would pass the message to the web browser to allow web pages from other origins to access resources from the server.
 #### Dotenv
 Node.js package that enables the management of environment variables by loading them from a ```.env``` file. This practice avoids coders storing sensitive data in the codebase. This package allows different configurations for development, testing, and production environments (TeachmeJS, 2025)[^6].
 #### Jest
@@ -63,7 +65,7 @@ Source for **Ruby on Rails** (Hotwire.dev, 2025)[^15]
 - Bcrypt is *MIT License* (node.bcrypt.js, 2021)[^20]
 - Dotenv is *MIT License* (dotenv, 2015)[^21]
 - Jest is *MIT License* (jest, 2024)[^22]
-
+- Cors is *MIT License* (NPM, 2018)[^23]
 
 ### References
 
@@ -74,6 +76,8 @@ Source for **Ruby on Rails** (Hotwire.dev, 2025)[^15]
 [^3]: MDN Web Docs, 2025, *Express/Noode introduction*, accessed on 10 May 2025, https://developer.mozilla.org/en-US/docs/Learn_web_development/Extensions/Server-side/Express_Nodejs/Introduction
 
 [^4]: Geeks for Geeks, 2025, *How to use JSON web tokens with Node.js?*, accessed on 10 May 2025, https://www.geeksforgeeks.org/how-to-use-json-web-tokens-with-node-js/
+
+[^CORS]: MDN Web Docs, 2025, *Cross-Origin Resource Sharing (CORS)*, accessed on 10 May 2025, https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CORS
 
 [^5]: Auth0, 2021, *Hashing in Action: Understanding bcrypt*, accessed on 10 May 2025,  https://auth0.com/blog/hashing-in-action-understanding-bcrypt/
 
@@ -111,3 +115,5 @@ https://www.mongodb.com/docs/manual/administration/production-notes/
 [^21]: dotenv on GitHub, 2015, *BSD 2-Clause "Simplified" License*, accessed on 27 May 2025, https://github.com/motdotla/dotenv/blob/master/LICENSE
 
 [^22]: jest on Github, 2024, *MIT License, jest / LICENSE*, accessed ib 27 May 2025, https://github.com/jestjs/jest/blob/main/LICENSE
+
+[^23]: NPM, 2018, *cors*, accessed on 27 May 2025, https://www.npmjs.com/package/cors#license
