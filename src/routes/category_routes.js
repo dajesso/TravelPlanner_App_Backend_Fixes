@@ -74,7 +74,7 @@ router.post('/categories', async(req,res) => {
 
         // if the category name already exists
         if (existing) {
-            return badRequest(res, 'The category already exsited');
+            return badRequest(res, 'The category already exists');
         }
         // Create and save new category
         const category = await Category.create({ name, user: userId });
