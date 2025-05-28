@@ -112,7 +112,7 @@ router.get('/categories/:id', async(req, res) => {
 router.post('/categories', validateCategoryName, async(req,res) => {
     try {
         await checkNameUnique(req.cleanedCategoryName, req.userId);
-
+      
         // Create and save new category
         const category = await Category.create({ name: req.cleanedCategoryName, user: req.userId });
         res.status(201).send(formatCategory(category));

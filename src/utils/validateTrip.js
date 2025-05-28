@@ -11,7 +11,11 @@ function parseDate(dateStr, label) {
 
 // When modifying 'location', this value must be provided
 function validateNewTrip({ location, arrivalDate, departureDate }) {
-  if (!location || location.trim() === '') {
+  if (typeof location !== 'string') {
+    throw new Error('Location must be a valid place, not a number or just symbols');
+  }
+
+  if (location.trim() === '') {
     throw new Error('Location is required to record a trip');
   }
 
