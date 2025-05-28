@@ -6,6 +6,61 @@
 ### 15524 - Hernan Velasquez
 ### 16011 - Jessica Amy
 
+# 🌍 Travel Planner API
+
+This is the backend server for the **Travel Planner App**, a full-stack MERN application that helps users manage their trips and travel expenses. The API allows users to securely create, update, and delete trips and related expenses, supporting features such as categories and expense totals.
+
+---
+
+## Features
+
+-  **Authentication** with JWT
+-  **Trip management** (create, update, delete, view)
+-  **Expense tracking** per trip, including total calculations
+-  **Categories** for organizing expenses
+-  Clean, formatted date display with `moment.js`
+-  Protected routes and error handling
+-  Validation for inputs and graceful error feedback
+
+## Getting Started
+
+Follow these steps to get the backend server up and running locally:
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/Angie-newbie/TravelPlanner_App_Backend.git
+cd TravelPlanner_App_Backend
+```
+
+### 2. Install Dependencies
+
+```bash
+npm install
+```
+
+### 3. Create a .env File
+In the root of the project, create a file named .env and add the following:
+```bash
+JWT_SECRET=felicisontheloose
+```
+
+### 4. Start MongoDB (if not already running)
+If you're using a local MongoDB server, start it with:
+```bash
+mongod
+```
+
+### 5. Start the Server (Development Mode)
+```bash
+npm run dev
+```
+You should see output confirming the server and database connection:
+```bash
+Server running on http://localhost:3000
+Connected to MongoDB
+```
+
 ### Style Guide for the code
 
 The code of the Travel Planner Web Application is written following the **Airbnb JavaScript Style Guide**(Airbnb, 2025)[^1], to facilitate readability, safe JavaScript practices, and seamless interaction among coders that might want to inspect this source in the future.
