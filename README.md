@@ -61,6 +61,39 @@ Server running on http://localhost:3000
 Connected to MongoDB
 ```
 
+### API Endpoints
+---
+#### Users | | Register, login and auth
+
+- ```POST /register``` ---> Register a new user
+- ```POST /login``` ---> Login of registered user
+
+Once the user is authenticated with the correct user-password pair, the user can perform:
+
+#### Trips | | CRUD operations
+
+- ```POST /trips``` ---> Create a new trip 
+- ```GET /trips``` ---> Get all trips 
+- ```GET /trips/:id``` ---> Get one specific trip 
+- ```PATCH /trips/:id``` ---> Modify values of one specific trip 
+- ```DELETE /trips/:id``` ---> Delete one specific trip
+
+#### Categories | | CRUD operations
+
+- ```POST /categories``` ---> Create a new category 
+- ```GET /categories``` ---> Get all categories 
+- ```GET /categories/:id``` ---> Get one specific category 
+- ```PATCH /categories/:id``` ---> Modify one category
+- ```DELETE /categories/:id``` ---> Delete one category
+
+#### Expenses | | CRUD operations
+
+- ```POST /expenses``` ---> Create a new expense 
+- ```GET /expenses``` ---> Get all expenses 
+- ```GET /expenses/:id``` ---> Get one specific expense 
+- ```PATCH /expenses/:id``` ---> Modify values of one specific expense 
+- ```DELETE /expenses/:id``` ---> Delete one specific expense
+
 ### Style Guide for the code
 
 The code of the Travel Planner Web Application is written following the **Airbnb JavaScript Style Guide**(Airbnb, 2025)[^1], to facilitate readability, safe JavaScript practices, and seamless interaction among coders that might want to inspect this source in the future.
@@ -122,6 +155,7 @@ Source for **Ruby on Rails** (Hotwire.dev, 2025)[^15]
 - Jest is *MIT License* (jest, 2024)[^22]
 - Cors is *MIT License* (NPM, 2018)[^23]
 
+---
 ### References
 
 [^1]: Airbnb, JavaScript 2025, *Airbnb JavaScript Style Guide*, accessed on 10 May 2025, https://github.com/airbnb/javascript
