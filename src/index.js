@@ -13,13 +13,15 @@ const category_routes = require('./routes/category_routes.js');
 const trip_routes = require('./routes/trip_routes.js');
 const auth_routes = require('./routes/auth_routes.js');
 const {connect} = require('./db.js')
-
+const cors = require("cors");
 
 const app = express ()
 const port = 3000
 
 // middleware to parse JSON body from the client
 app.use(express.json())
+
+app.use(cors());
 
 
 // insertion of middleware through respective routes
