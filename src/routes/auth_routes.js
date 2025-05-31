@@ -9,14 +9,9 @@ require('dotenv').config();
 const router = Router();
 const secret = process.env.JWT_SECRET;
 
-//import { badRequest, goodRequest, notFound} from '../utils/responses.js'
+
 const {badRequest, goodRequest, notFound} = require('../utils/responses.js')
-// Login
-/** TODO: handle error when trying to register an existing email
- * Trial produced this: 
- * "error": "E11000 duplicate key error collection: travelp.users index: email_1 dup key: { email: \"user.test@gmail.com\" }"
- * Handle with a meaningful response
-*/
+
 // Login route
 router.post('/login', async (req, res) => {
     try {

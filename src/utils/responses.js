@@ -51,6 +51,7 @@ json
   }
 }`
 */
+
 function formatValidationErrors(errors) {
 // Create an empty object to store the simplified error messages
   const simplifiedErrors = {};

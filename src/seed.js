@@ -67,7 +67,9 @@ async function seed() {
 
 
     // Create User
-    /** Creates and saves the returned documents with '_id', and other Mongo-generated fields, to 'createUsers' for later use. We store it to link 'trips' to the specific 'user'. 
+    /** Creates and saves the returned documents with '_id', 
+    and other Mongo-generated fields, to 'createUsers' 
+    for later use. We store it to link 'trips' to the specific 'user'. 
     */
     const createdUsers = await User.create(users);
     
@@ -77,7 +79,8 @@ async function seed() {
       trip.userId = createdUsers[0]._id;
       trip.totalExpense = 0; // Will be updated later
     });
-    const createdTrips = await Trip.create(trips); // execute the creation and save the returned documents
+    // execute the creation and save the returned documents
+    const createdTrips = await Trip.create(trips); 
     
 
     // Assign user to each category
@@ -87,13 +90,18 @@ async function seed() {
     // Create categories
     const createdCategories = await Category.create(categories);
     
-    // Assign trip and category to each expense
-    // seeding the first expense to the first trip
+    
+    /**  Assign trip and category to each expense
+    seeding the first expense to the first trip
+    */
     expenses[0].trip = createdTrips[0]._id;
+
     // the first expense to the first category
     expenses[0].category = createdCategories[0]._id;
+
     //Second expense to the first trip
     expenses[1].trip = createdTrips[0]._id;
+    
     //Second expense to second category
     expenses[1].category = createdCategories[1]._id;
     
