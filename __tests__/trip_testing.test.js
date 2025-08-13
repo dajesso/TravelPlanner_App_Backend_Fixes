@@ -1,5 +1,6 @@
 const request = require('supertest');
 const app = require('../src/index.js')
+const mongoose = require('mongoose')
 
 let token = ''; 
 let tripId = '';
@@ -34,6 +35,11 @@ beforeAll(async () => {
 
 // Testing
 
+
+afterAll(async () => {
+    await mongoose.disconnect();
+
+});
 
 
 describe("Get one trip and return the check _id, location, arrivalDate, departureDate, and totalExpense", () => {

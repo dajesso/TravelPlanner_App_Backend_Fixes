@@ -10,6 +10,7 @@
 const request = require('supertest');
 const app = require('../src/index.js')
 const bcrypt = require('bcrypt');
+const mongoose = require('mongoose');
 
 // will store value later
 let token = ''; 
@@ -57,6 +58,13 @@ beforeAll(async () => {
   categoryId = categoryRes.body._id;
 });
 
+
+// we close the connection so it doesn't hang
+
+afterAll(async () => {
+    await mongoose.disconnect();
+  
+});
 
 //Testing
 describe('Trip Expense Logic', () => {

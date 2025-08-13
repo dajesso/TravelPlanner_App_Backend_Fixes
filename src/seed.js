@@ -7,6 +7,8 @@ const Trip = require('./models/trip.js');
 const Category = require('./models/category.js');
 const Expense = require('./models/expense.js');
 
+require('dotenv').config();
+
 // Trip
 const trips = [
   {

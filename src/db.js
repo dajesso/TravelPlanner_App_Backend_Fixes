@@ -1,15 +1,3 @@
-// import mongoose from 'mongoose'
-const mongoose = require('mongoose');
-
-// Section to connect to the database locally
-
-// // Connect to MongoDB
-// async function connect() {
-// await mongoose.connect('mongodb://127.0.0.1:27017/travelp') // CHOOSE DB NAME
-// console.log(mongoose.connection.readyState == 1 ? 'Mongoose connected' : 'Mongoose failed to connect!')
-// }
-
-// // Disconnect from MongoDB
 
 // async function close() {
 //   await mongoose.disconnect()
@@ -21,8 +9,13 @@ const mongoose = require('mongoose');
 
 // Section to connect to the MongoDB Atlas
 
+// unsure why this isn't working but this is a simple workaround.
+
+const mongoose = require('mongoose');
+
 const connect = async () => {
   try {
+    console.log('Mongo URI:', process.env.MONGO_URI);
     await mongoose.connect(process.env.MONGO_URI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
@@ -34,7 +27,15 @@ const connect = async () => {
   }
 };
 
-module.exports = { connect };
+// we need the close function for the tests otherwise it runs forever.
 
+const close = async () => {
+  try {
+    await mongoose.disconnect();
+    console.log('Disconnected from MongoDB');
+  } catch (error) {
+    console.error('MongoDB disconnection failed:', error.message);
+  }
+};
 
-
+module.exports = { connect, close};
