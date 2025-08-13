@@ -69,7 +69,7 @@ router.post('/register', async (req, res) => {
     const user = await User.create({
       email,
       password: await bcrypt.hash(password, 10),
-      userType: 'user',
+      accountType: 'user',
     });
 
     // Send successful response
