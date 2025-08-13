@@ -22,11 +22,8 @@ router.post('/login', async (req, res) => {
             const match = await bcrypt.compare(req.body.password || '', user.password)
             if (match) {
                 // Generate a JWT and send it to the client
-                const token = jwt.sign({
-                     _id: user._id,
-                    email: user.email,
-                    exp: Math.floor(Date.now() / 1000) + (60 * 60) // 1 hour
-                }, secret);
+                const token = jwt.sign({ userId: user._id, email: user.email }, process.env.JWT_SECRET,{ expiresIn: '24h' }
+);
 
                 // Seed fixed categories after login
                 await seedCategoriesForUser(user._id);

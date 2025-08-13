@@ -1,9 +1,6 @@
 // this is the auth middle ware 
 // will check if a user is of type admin or user
 
-
-
-
 const { expressjwt } = require('express-jwt');
 const User = require('./models/user.js');
 const jwt = require('jsonwebtoken');
@@ -21,7 +18,7 @@ function auth(req, res, next) {
 }
 
 // Verifies if the token is valid for the user
-function verifyToken(req, res, next) { 
+async function verifyToken(req, res, next) { // BUG FIX 1: Added async
     try {
         // grab the token from the 'Authorization' header eg. from Bruno
       const token = req.headers['authorization'];
@@ -35,23 +32,37 @@ function verifyToken(req, res, next) {
     const stripBearer = token.startsWith('Bearer ') ? token.slice(7) : token;
       console.log('Token after Bearer removed:', stripBearer); //for debugging
 
-    // Decoding the token  
-    jwt.verify(stripBearer, secret, (err, decoded) => {
-    if (err) {
-      console.log('JWT verify error:', err); // for debugging
-        return res.status(403).send({ error: 'Forbidden' });
-    }
-      console.log('DECODED TOKEN:', decoded);// for debugging
+    // BUG FIX 2: Use stripBearer instead of token
+    const decoded = jwt.verify(stripBearer, process.env.JWT_SECRET);
 
-      // Stores decoded token for use throughout app
-      req.auth = decoded;
-        next();
-    });
-    } catch (error) {
-        console.error('Error verifying token:', error);
-        serverError(res,  'Internal Server Error' );
+    // check the database user.
+    const checkUser = await User.findById(decoded.userId);
+    if (!checkUser) {
+      // BUG FIX 3: Fixed typo badReuqest -> unauthorized
+      return unauthorized(res, "Invalid token - user doesn't exist in database");
     }
-};
+
+    // add user userID, email and account type
+     req.user = {
+      userId: checkUser._id,
+      email: checkUser.email,
+      accountType: checkUser.accountType
+    };
+
+    next();
+
+  }catch(error){
+    // we now check the error and display the right one.
+    if (error.name === 'JsonWebTokenError') {
+      // BUG FIX 4: Fixed typo Invaild -> Invalid
+      return forbidden(res, "Invalid Token");
+    }
+    if (error.name === 'TokenExpiredError') {
+      return forbidden(res, 'Token expired');
+    }
+    return serverError(res, 'Token verification failed');
+  }
+}
 
 // Check if user is 'admin' or 'user'
 function checkUserType(req, res, next) {
@@ -71,12 +82,12 @@ function checkUserType(req, res, next) {
     });
         // Prompts nice message if the user is not authorized
         } else {
-          // export default { auth, checkUserType, verifyToken}
           return unauthorized(res, 'Unauthorized');
         }
     } catch (error) {
         console.error('Error checking user type:', error);
-         serverError(res,  'Internal Server Error' );
+        // BUG FIX 5: Added missing return statement
+        return serverError(res, 'Internal Server Error');
     }
 }
 
